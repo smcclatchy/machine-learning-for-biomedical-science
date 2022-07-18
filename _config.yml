@@ -8,15 +8,18 @@
 # lc: Library Carpentry
 # cp: Carpentries (to use for instructor traning for instance)
 # incubator: Carpentries Incubator
-carpentry: "swc"
+carpentry: "incubator"
 
 # Overall title for pages.
-title: "Lesson Title"
+title: "Machine Learning for Biomedical Science"
 
 # Life cycle stage of the lesson
 # See this page for more details: https://cdh.carpentries.org/the-lesson-life-cycle.html
 # Possible values: "pre-alpha", "alpha", "beta", "stable"
 life_cycle: "pre-alpha"
+
+# Support equation rendering via KaTeX
+math: true
 
 #------------------------------------------------------------
 # Generic settings (should not need to change).
