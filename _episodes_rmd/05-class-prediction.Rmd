@@ -9,6 +9,7 @@ objectives:
 - "."
 keypoints:
 - "."
+math: yes
 ---
 
 ```{r options, echo=FALSE}
