@@ -59,6 +59,8 @@ plot(X,Y)
 
 ![MA-plot comparing gene expression from two arrays.](fig/04-smoothing-MAplot-1.png)
 
+![MA-plot comparing gene expression from two arrays.](../fig/04-smoothing-MAplot-1.png)
+
 In the MA plot we see that $Y$ depends on $X$. This dependence must be a bias because these are based on replicates, which means $Y$ should be 0 on average regardless of $X$. We want to predict $f(x)=\mbox{E}(Y \mid X=x)$ so that we can remove this bias. Linear regression does not capture the apparent curvature in $f(x)$:
 
 
@@ -72,6 +74,8 @@ abline(fit,col=2,lwd=4,lty=2)
 
 ![MA-plot comparing gene expression from two arrays with fitted regression line. The two colors represent positive and negative residuals.](fig/04-smoothing-MAplot_with_regression_line-1.png)
 
+![MA-plot comparing gene expression from two arrays with fitted regression line. The two colors represent positive and negative residuals.](../fig/04-smoothing-MAplot_with_regression_line-1.png)
+
 The points above the fitted line (green) and those below (purple) are not evenly distributed. We therefore need an alternative more flexible approach.
 
 ## Bin Smoothing
@@ -80,13 +84,19 @@ Instead of fitting a line, let's go back to the idea of stratifying and computin
 
 ![MAplot comparing gene expression from two arrays with bin smoother fit shown for two points.](fig/04-smoothing-binsmoother-1.png)
 
+![MAplot comparing gene expression from two arrays with bin smoother fit shown for two points.](../fig/04-smoothing-binsmoother-1.png)
+
 By computing this mean for bins around every point, we form an estimate of the underlying curve $f(x)$. Below we show the procedure happening as we move from the smallest value of $x$ to the largest. We show 10 intermediate cases as well (code not shown):
 
 ![Illustration of how bin smoothing estimates a curve. Showing 12 steps of process.](fig/04-smoothing-bin_smoothing_demo-1.png)
 
+![Illustration of how bin smoothing estimates a curve. Showing 12 steps of process.](../fig/04-smoothing-bin_smoothing_demo-1.png)
+
 The final result looks like this (code not shown):
 
 ![MA-plot with curve obtained with bin-smoothed curve shown.](fig/04-smoothing-bin_smooth_final-1.png)
+
+![MA-plot with curve obtained with bin-smoothed curve shown.](../fig/04-smoothing-bin_smooth_final-1.png)
 
 There are several functions in R that implement bin smoothers. One example is `ksmooth`. However, in practice, we typically prefer methods that use slightly more complicated models than fitting a constant. The final result above, for example, is somewhat wiggly. Methods such as `loess`, which we explain next, improve on this.
 
@@ -97,13 +107,19 @@ Local weighted regression (loess) is similar to bin smoothing in principle. The 
 
 ![MA-plot comparing gene expression from two arrays with bin local regression fit shown for two points.](fig/04-smoothing-loess-1.png)
 
+![MA-plot comparing gene expression from two arrays with bin local regression fit shown for two points.](../fig/04-smoothing-loess-1.png)
+
 As we did for the bin smoother, we show 12 steps of the process that leads to a loess fit (code not shown):
 
 ![Illustration of how loess estimates a curve. Showing 12 steps of the process.](fig/04-smoothing-loess_demo-1.png)
 
+![Illustration of how loess estimates a curve. Showing 12 steps of the process.](../fig/04-smoothing-loess_demo-1.png)
+
 The final result is a smoother fit than the bin smoother since we use larger sample sizes to estimate our local parameters (code not shown):
 
 ![MA-plot with curve obtained with loess.](fig/04-smoothing-loess_final-1.png)
+
+![MA-plot with curve obtained with loess.](../fig/04-smoothing-loess_final-1.png)
 
 The function `loess` performs this analysis for us:
 
@@ -120,5 +136,7 @@ lines(newx,smooth,col="black",lwd=3)
 ```
 
 ![Loess fitted with the loess function.](fig/04-smoothing-loess2-1.png)
+
+![Loess fitted with the loess function.](../fig/04-smoothing-loess2-1.png)
 
 There are three other important differences between `loess` and the typical bin smoother. The first  is that rather than keeping the bin size the same, `loess` keeps the number of points used in the local fit the same. This number is controlled via the `span` argument which expects a proportion. For example, if `N` is the number of data points and `span=0.5`, then for a given $x$ , `loess` will use the `0.5*N` closest points to $x$ for the fit. The second difference is that, when fitting the parametric model to obtain $f(x)$, `loess` uses weighted least squares, with higher weights for points that are closer to $x$. The third difference is that `loess` has the option of fitting the local model robustly. An iterative algorithm is implemented in which, after fitting a model in one iteration, outliers are detected and downweighted for the next iteration. To use this option, we use the argument `family="symmetric"`.

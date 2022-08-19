@@ -92,6 +92,8 @@ plot(Xsmall,col=as.fumeric(y))
 legend("topleft",levels(factor(y)),fill=seq_along(levels(factor(y))))
 ```
 
+![First two PCs of the tissue gene expression data with color representing tissue. We use these two PCs as our two predictors throughout.](../fig/06-cross-validation-mds-1.png)
+
 Now we can try out the k-nearest neighbors method on a single fold. We provide the `knn` function with all the samples in `Xsmall` *except* those which are in the first fold. We remove these samples using the code `-idx[[1]]` inside the square brackets. We then use those samples in the test set. The `cl` argument is for the true classifications or labels (here, tissue) of the training data. We use 5 observations to classify in our k-nearest neighbor algorithm:
 
 ```{r}
@@ -144,6 +146,8 @@ We can then plot the error rate for each value of k, which helps us to see in wh
 plot(ks, res, type="o",ylab="misclassification error")
 ```
 
+![Misclassification error versus number of neighbors.](../fig/06-cross-validation-misclassification_error-1.png)
+
 Remember, because the training set is a random sample and because our fold-generation procedure involves random number generation, the "best" value of k we pick through this procedure is also a random variable. If we had new training data and if we recreated our folds, we might get a different value for the optimal k.
 
 Finally, to show that gene expression can perfectly predict tissue, we use 5 dimensions instead of 2, which results in perfect prediction:
@@ -163,6 +167,8 @@ res <- sapply(ks, function(k) {
 })
 plot(ks, res, type="o",ylim=c(0,0.20),ylab="misclassification error")
 ```
+
+![Misclassification error versus number of neighbors when we use 5 dimensions instead of 2.](../fig/06-cross-validation-misclassification_error2-1.png)
 
 Important note: we applied `cmdscale` to the entire dataset to create
 a smaller one for illustration purposes. However, in a real machine

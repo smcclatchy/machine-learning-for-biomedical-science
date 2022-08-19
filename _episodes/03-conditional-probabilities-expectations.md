@@ -57,6 +57,8 @@ abline(v=mean(y),col="red",lwd=2)
 
 ![Histogram of son heights.](fig/03-conditional-probabilities-expectations-height_hist-1.png)
 
+![Histogram of son heights.](../fig/03-conditional-probabilities-expectations-height_hist-1.png)
+
 In this case, we can also approximate the distribution of $Y$ as normal, which implies the mean maximizes the probability density. 
 
 Let's imagine that we are given more information. We are told that the father of this randomly selected son has a height of 71 inches (1.25 SDs taller than the average). What is our prediction now? 
@@ -73,6 +75,7 @@ hist(y[x==71],xlab="Heights",nc=8,main="",xlim=range(y))
 
 ![Son versus father height (left) with the red lines denoting the stratum defined by conditioning on fathers being 71 inches tall. Conditional distribution: son height distribution of stratum defined by 71 inch fathers.](fig/03-conditional-probabilities-expectations-conditional_distribution-1.png)
 
+![Son versus father height (left) with the red lines denoting the stratum defined by conditioning on fathers being 71 inches tall. Conditional distribution: son height distribution of stratum defined by 71 inch fathers.](../fig/03-conditional-probabilities-expectations-conditional_distribution-1.png)
 
 The best guess is still the expectation, but our strata has changed from all the data, to only the $Y$ with $X=71$. So we can stratify and take the average, which is the conditional expectation. Our prediction for any $x$ is therefore:
 
@@ -103,5 +106,7 @@ abline(v = fit$coef[1] + fit$coef[2]*71, col=1)
 ```
 
 ![Son versus father height showing predicted heights based on regression line (left). Conditional distribution with vertical line representing regression prediction.](fig/03-conditional-probabilities-expectations-regression-1.png)
+
+![Son versus father height showing predicted heights based on regression line (left). Conditional distribution with vertical line representing regression prediction.](../fig/03-conditional-probabilities-expectations-regression-1.png)
 
 In this particular case, the regression line provides an optimal prediction function for $Y$. But this is not generally true because, in the typical machine learning problems, the optimal $f(x)$ is rarely a simple line.
