@@ -110,3 +110,60 @@ abline(v = fit$coef[1] + fit$coef[2]*71, col=1)
 ![Son versus father height showing predicted heights based on regression line (left). Conditional distribution with vertical line representing regression prediction.](../fig/03-conditional-probabilities-expectations-regression-1.png)
 
 In this particular case, the regression line provides an optimal prediction function for $Y$. But this is not generally true because, in the typical machine learning problems, the optimal $f(x)$ is rarely a simple line.
+
+> ## Exercises
+> Throughout these exercises it will be useful to remember that when our data 
+> are 0s and 1s, probabilities and expectations are the same thing. We can do 
+> the math, but here is some R code:
+> 
+> ```r
+> n = 1000
+> y = rbinom(n, 1, 0.25) ## proportion of ones Pr(Y)
+> sum(y==1)/length(y) ## expectation of Y mean(y)
+> ```
+> 1. Generate some random data to imitate heights for men (0) and women (1):
+> 
+> ```r
+> n = 10000
+> set.seed(1)
+> men = rnorm(n, 176, 7) # height in centimeters 
+> women = rnorm(n, 162, 7) # height in centimeters y = c(rep(0, n), rep(1, n))
+> x = round(c(men, women))
+> ## mix it up
+> ind = sample(seq(along=y))
+> y = y[ind]
+> x = x[ind]
+> ```
+> 2. Using the data generated above, what is the E(Y | X = 176)?
+> 
+> > ## Solution
+> >
+> > 
+> > ```r
+> > mean(y[x==176])
+> > ```
+> {: .solution}
+{: .challenge}
+> 3. Now make a plot of E(Y|X=x) for `x=seq(160, 178)` using the data generated
+> in exercise 1.
+> If you are predicting female or male based on height and want your probability 
+> of success to be larger than 0.5, what is the largest height where you predict 
+> female ?
+> 
+> > ## Solution
+> >
+> > 
+> > ```r
+> > mypar()
+> > plot(x,y)
+> > x_list <- seq(160,178)
+> > res <- vector('double', length(x_list))
+> > for (i in seq_along(x_list)) {
+> >   res[[i]] <- mean(y[x==x_list[[i]]])
+> > }
+> > ind <- max(which(res > 0.5))
+> > x_list[ind] # answer
+> > mean(y[x==168])
+> > ```
+> {: .solution}
+{: .challenge}
