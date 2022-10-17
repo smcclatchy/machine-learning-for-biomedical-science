@@ -1,4 +1,6 @@
---- title: Setup --- 
+--- 
+title: Setup 
+--- 
 
 ## Project organization
 
