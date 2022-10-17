@@ -34,13 +34,11 @@ them again if you find them there.
 install.packages("devtools") 
 install.packages("rafalib")
 install.packages("RColorBrewer")
-install.packages("genefilter")
 install.packages("gplots")
 install.packages("UsingR")
 library(devtools)
 library(rafalib)
 library(RColorBrewer)
-library(genefilter)
 library(gplots)
 ~~~
 {: .r}
@@ -60,5 +58,16 @@ Alternatively,
 [download the data directly from Github](https://github.com/genomicsclass/tissuesGeneExpression/blob/master/data/tissuesGeneExpression.rda) 
 and place them in your new `data` directory. Do this if installing `devtools` or 
 installing from Github gave you difficulty.
+
+Load the `genefilter` package from Bioconductor.
+~~~
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("genefilter")
+library(genefilter)
+~~~
+{: .r}
+
 
 {% include links.md %}
