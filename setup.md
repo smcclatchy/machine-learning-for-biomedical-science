@@ -24,13 +24,22 @@ dir.create("./results")
 ## Package installation and data access
 
 Start RStudio. 
-Install `devtools`. The `devtools` package supports
-package dependency installation for packages not yet in a standard
-package repository such as CRAN or Bioconductor.
+Install packages and load the libraries. You might already have some of these installed.
+Search for their names in the `Packages` tab in RStudio. There is no need to install
+them again if you find them there.
 
 ~~~
 install.packages("devtools") 
+install.packages("rafalib")
+install.packages("RColorBrewer")
+install.packages("genefilter")
+install.packages("gplots")
+install.packages("UsingR")
 library(devtools)
+library(rafalib)
+library(RColorBrewer)
+library(genefilter)
+library(gplots)
 ~~~
 {: .r}
 
@@ -47,6 +56,7 @@ The data represent RNA expression levels for eight tissues, each with several in
 
 Alternatively, 
 [download the data directly from Github](https://github.com/genomicsclass/tissuesGeneExpression/blob/master/data/tissuesGeneExpression.rda) 
-and place them in your new `data` directory.
+and place them in your new `data` directory. Do this if installing `devtools` or 
+installing from Github gave you difficulty.
 
 {% include links.md %}
