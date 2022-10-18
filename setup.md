@@ -25,25 +25,24 @@ dir.create("./results")
 
 ## Package installation and data access
 
-Start RStudio. 
-Install packages and load the libraries. You might already have some of these installed.
-Search for their names in the `Packages` tab in RStudio. There is no need to install
-them again if you find them there.
+1. Start RStudio. 
+2. Install R packages and load the libraries. You might already have some of these 
+installed. Search for their names in the `Packages` tab in RStudio. There is no need to 
+install them again if you find them there.
 
 ~~~
-install.packages("devtools") 
-install.packages("rafalib")
-install.packages("RColorBrewer")
-install.packages("gplots")
-install.packages("UsingR")
+install.packages("devtools", "rafalib", "RColorBrewer", "gplots", "UsingR")
 library(devtools)
 library(rafalib)
 library(RColorBrewer)
 library(gplots)
+library(UsingR)
 ~~~
 {: .r}
 
-Install the tissue gene expression data from Github then load the library and data.
+3. Install the tissue gene expression data from Github then load the library and data.
+If you were successful installing and loading `devtools` above, you should be able to 
+install from Github.
 
 ~~~
 install_github("genomicsclass/tissuesGeneExpression") 
@@ -59,13 +58,18 @@ Alternatively,
 and place them in your new `data` directory. Do this if installing `devtools` or 
 installing from Github gave you difficulty.
 
-Load the `genefilter` package from Bioconductor.
+4. Load packages from Bioconductor.
+
 ~~~
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-BiocManager::install("genefilter")
+BiocManager::install(c("genefilter", "Biobase", "SpikeIn", "hgu95acdf"")
 library(genefilter)
+library(Biobase)
+library(SpikeIn)
+library(hgu95acdf)
+data(SpikeIn95)
 ~~~
 {: .r}
 
