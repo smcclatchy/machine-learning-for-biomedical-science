@@ -30,27 +30,27 @@ dir.create("./results")
 installed. Search for their names in the `Packages` tab in RStudio. There is no need to 
 install them again if you find them there.
 
-~~~
-install.packages("devtools", "rafalib", "RColorBrewer", "gplots", "UsingR", "class", "caret")
-library(devtools)
-library(rafalib)
-library(RColorBrewer)
-library(gplots)
-library(UsingR)
-library(class)
-library(caret)
-~~~
+    ~~~
+   install.packages("devtools", "rafalib", "RColorBrewer", "gplots", "UsingR", "class", "caret")
+   library(devtools)
+   library(rafalib)
+   library(RColorBrewer)
+   library(gplots)
+   library(UsingR)
+   library(class)
+   library(caret)
+   ~~~
 {: .r}
 
 3. Install the tissue gene expression data from Github then load the library and data.
 If you were successful installing and loading `devtools` above, you should be able to 
 install from Github.
 
-~~~
-install_github("genomicsclass/tissuesGeneExpression") 
-library(tissuesGeneExpression) 
-data(tissuesGeneExpression)
-~~~
+   ~~~
+   install_github("genomicsclass/tissuesGeneExpression") 
+   library(tissuesGeneExpression) 
+   data(tissuesGeneExpression)
+   ~~~
 {: .r}
 
 The data represent RNA expression levels for eight tissues, each with several individuals.
@@ -66,7 +66,7 @@ installing from Github gave you difficulty.
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-BiocManager::install(c("genefilter", "Biobase", "SpikeIn", "hgu95acdf"")
+BiocManager::install(c("genefilter", "Biobase", "SpikeIn", "hgu95acdf")
 library(genefilter)
 library(Biobase)
 library(SpikeIn)
