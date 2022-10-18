@@ -16,12 +16,12 @@ house your scripts, and a `results` folder to hold results. Alternatively, you c
 R console to run the following commands for step 2 only. You still need to create a 
 project with step 1.
 
-~~~
-dir.create("./data")
-dir.create("./scripts")
-dir.create("./results")
-~~~
-{: .r}
+   ~~~
+   dir.create("./data")
+   dir.create("./scripts")
+   dir.create("./results")
+   ~~~
+   {: .r}
 
 ## Package installation and data access
 
@@ -40,7 +40,7 @@ install them again if you find them there.
    library(class)
    library(caret)
    ~~~
-{: .r}
+   {: .r}
 
 3. Install the tissue gene expression data from Github then load the library and data.
 If you were successful installing and loading `devtools` above, you should be able to 
@@ -51,7 +51,7 @@ install from Github.
    library(tissuesGeneExpression) 
    data(tissuesGeneExpression)
    ~~~
-{: .r}
+   {: .r}
 
 The data represent RNA expression levels for eight tissues, each with several individuals.
 
