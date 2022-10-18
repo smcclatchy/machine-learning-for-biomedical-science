@@ -52,14 +52,14 @@ install from Github.
    data(tissuesGeneExpression)
    ~~~
    {: .r}
-
-The data represent RNA expression levels for eight tissues, each with several individuals.
-
-Alternatively, 
-[download the data directly from Github](https://github.com/genomicsclass/tissuesGeneExpression/blob/master/data/tissuesGeneExpression.rda) 
-and place them in your new `data` directory. Do this if installing `devtools` or 
-installing from Github gave you difficulty.
-
+   
+   The data represent RNA expression levels for eight tissues, each with several 
+   individuals.
+   
+   Alternatively, [download the data directly from Github](https://github.com/genomicsclass/tissuesGeneExpression/blob/master/data/tissuesGeneExpression.rda) 
+   and place them in your new `data` directory. Do this if installing `devtools` or 
+   installing from Github gave you difficulty.
+   
 4. Load packages from Bioconductor.
 
 ~~~
