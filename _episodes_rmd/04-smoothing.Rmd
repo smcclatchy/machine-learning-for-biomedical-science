@@ -221,3 +221,72 @@ lines(newx,smooth,col="black",lwd=3)
 ![Loess fitted with the loess function.](../fig/04-smoothing-loess2-1.png)
 
 There are three other important differences between `loess` and the typical bin smoother. The first  is that rather than keeping the bin size the same, `loess` keeps the number of points used in the local fit the same. This number is controlled via the `span` argument which expects a proportion. For example, if `N` is the number of data points and `span=0.5`, then for a given $x$ , `loess` will use the `0.5*N` closest points to $x$ for the fit. The second difference is that, when fitting the parametric model to obtain $f(x)$, `loess` uses weighted least squares, with higher weights for points that are closer to $x$. The third difference is that `loess` has the option of fitting the local model robustly. An iterative algorithm is implemented in which, after fitting a model in one iteration, outliers are detected and downweighted for the next iteration. To use this option, we use the argument `family="symmetric"`.
+
+> ## Exercises                         
+> 1. Generate the following data:                                            
+> 
+> ```{r, eval=FALSE}
+> n = 10000
+> set.seed(1)
+> men = rnorm(n,176,7) #height in centimeters
+> women = rnorm(n,162,7) #height in centimeters
+> y = c(rep(0,n),rep(1,n))
+> x = round(c(men,women))
+> ## mix it up
+> ind = sample(seq(along=y))
+> y = y[ind]
+> x = x[ind]
+> ```
+> Set the seed at 5, `set.seed(5)` and take a random sample of 250 from:       
+> ```{r, eval=FALSE}                        
+> set.seed(5)
+> N = 250    
+> ind = sample(length(y), N)
+> Y = y[ind]
+> X = x[ind]
+> ```                                               
+> Use loess to estimate f(x) = E(Y |X = x) using the default parameters. What is 
+> the predicted f(168)?
+> 
+> > ## Solution
+> >
+> > ```{r, eval=FALSE} 
+> > fit <- loess(Y~X)
+> > newx <- seq(min(X),max(X),len=45)
+> > hat <- predict(fit, newdata=data.frame(X=newx))
+> > mypar()
+> > plot(X,Y)
+> > names(hat) <- round(newx,1)
+> > lines(newx,hat)
+> > hat['168']
+> > ```
+> {: .solution}
+{: .challenge}
+> 2. The loess estimate above is a random variable. We can compute standard 
+> errors for it. Here we use Monte Carlo to demonstrate that it is a random 
+> variable. Use Monte Carlo simulation to estimate the standard error of your 
+> estimate of f (168). 
+>    
+> Set the seed to 5, set.seed(5) and perform 10000 simulations and report the SE 
+> of the loess based estimate.         
+> 
+> > ## Solution
+> > ```{r, eval=FALSE} 
+> > set.seed(5)
+> > B <- 10000
+> > N <- 250
+> > newx <- seq(min(X),max(X),len=45)
+> > res <- replicate(B, {
+> >   ind = sample(length(y),N)
+> >   Y = y[ind]
+> >   X = x[ind]
+> >   fit <- loess(Y~X)
+> >   hat <- predict(fit, newdata=data.frame(X=newx))
+> >   names(hat) <- round(newx,1)
+> >   return(hat['168'])
+> > })
+> > names(res) <- NULL
+> > popsd(res)
+> > ```
+> {: .solution}
+{: .challenge}

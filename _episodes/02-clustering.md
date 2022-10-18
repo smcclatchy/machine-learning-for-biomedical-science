@@ -8,7 +8,8 @@ exercises: 30
 questions:
 - "?"
 objectives:
-- "."
+- "Perform clustering analysis."
+- "Interpret a heatmap."
 keypoints:
 - "."
 math: yes

@@ -178,3 +178,175 @@ unlabeled full dataset gives a boost in performance. A safer choice
 would have been to transform the data separately for each fold, by
 calculating a rotation and dimension reduction using the training set only
 and applying this to the test set.
+
+> ## Exercises                         
+> Load the following dataset:                                            
+> 
+> ```{r, eval=FALSE}
+> library(GSE5859Subset)
+> data(GSE5859Subset)
+> ```
+> And define the outcome and predictors. To make the problem more difficult, we 
+> will only consider autosomal genes:
+> ```{r, eval=FALSE}
+> y = factor(sampleInfo$group)
+> X = t(geneExpression)
+> out = which(geneAnnotation$CHR %in% c("chrX","chrY"))
+> X = X[,-out]
+> ```
+> 1. Use the `createFold` function in the `caret` package, set the seed to 1 
+> `set.seed(1)` and create 10 folds of `y`. What is the 2nd entry in the fold 3?
+> 
+> > ## Solution
+> >
+> > ```{r, eval=FALSE} 
+> > library(caret)
+> > set.seed(1)
+> > idx <- createFolds(y, k = 10)
+> > idx[[3]][2]
+> > ```
+> {: .solution}
+{: .challenge}
+> 2. We are going to use kNN. We are going to consider a smaller set of 
+> predictors by using filtering gene using t-tests. Specifically, we will 
+> perform a t-test and select the $m$ genes with the smallest p-values.
+> 
+> Let m = 8 and k = 5 and train kNN by leaving out the second fold `idx[[2]]`. 
+> How many mistakes do we make on the test set? Remember it is indispensable 
+> that you perform the t-test on the training data. 
+> **Use all 10 folds, keep k = 5. Hint: be careful about indexing.**
+> 
+> > ## Solution
+> >
+> > ```{r, eval=FALSE} 
+> > m <- 8 # number of genes
+> > pvals <- rowttests(t(X[-idx[[2]],]),y[-idx[[2]]])$p.value
+> > ind <- order(pvals)[1:m]
+> > pred <- knn(train = X[-idx[[2]],ind],
+> >             test = X[idx[[2]],ind],
+> >             cl = y[-idx[[2]]], k = 5)
+> > sum(pred != y[idx[[2]]])
+> > ```
+> {: .solution}
+{: .challenge}
+> 3. Now run through all 5 folds. What is our error rate?
+> **(total number of errors / total predictions)**
+> > ## Solution
+> >
+> > ```{r, eval=FALSE} 
+> > n_fold <- length(idx)
+> > res <- vector('double', n_fold)
+> > m <- 8
+> > for (i in seq(n_fold)) {
+> >   pvals <- rowttests(t(X[-idx[[i]],]),y[-idx[[i]]])$p.value
+> >   ind <- order(pvals)[1:m]
+> >   pred <- knn(train = X[-idx[[i]],ind],
+> >               test = X[idx[[i]],ind],
+> >               cl = y[-idx[[i]]], k = 5)
+> >   res[[i]] <- sum(pred != y[idx[[i]]])
+> > }
+> > sum(res)/length(y)
+> > ```
+> {: .solution}
+{: .challenge}
+> 4. Now we are going to select the best values of k and m. Use the expand grid 
+> function to try out the following values:
+> 
+> ```{r, eval = FALSE}
+> ms = 2^c(1:11)
+> ks = seq(1,9,2)
+> params = expand.grid(k=ks,m=ms)
+> ```
+> 
+> Now use apply or a for-loop to obtain error rates for each of these pairs of 
+> parameters. Which pair of parameters minimizes the error rate?
+> > ## Solution
+> >
+> > ```{r, eval=FALSE} 
+> > ms = 2^c(1:11)
+> > ks = seq(1,9,2)
+> > params = expand.grid(k=ks, m=ms)
+> > n_fold <- length(idx)
+> > error_rate_avg = vector('double',nrow(params))
+> > for (j in seq(nrow(params))) {
+> >   for (i in seq(n_fold)) {
+> >     pvals <- rowttests(t(X[-idx[[i]],]),y[-idx[[i]]])$p.value
+> >     ind <- order(pvals)[1:params[j,][[2]]]
+> >     pred <- knn(train = X[-idx[[i]],ind],
+> >                 test = X[idx[[i]],ind],
+> >                 cl = y[-idx[[i]]], k = params[j,][[1]])
+> >     res[[i]] <- sum(pred != y[idx[[i]]])
+> >   }
+> >   error_rate_avg[[j]] <- sum(res)/length(y)
+> > }
+> > ind <- which(error_rate_avg == min(error_rate_avg))
+> > params[ind,] # answer
+> > min(error_rate_avg) # minimum error rate
+> > ```
+> {: .solution}
+{: .challenge}
+> 5. Repeat exercise 4, but now perform the t-test filtering before the cross
+> validation. Note how this biases the entire result and gives us much lower 
+> estimated error rates.
+> > ## Solution
+> >
+> > ```{r, eval=FALSE} 
+> > ms = 2^c(1:11)
+> > ks = seq(1,9,2)
+> > params = expand.grid(k=ks, m=ms)
+> > n_fold <- length(idx)
+> > error_rate_avg = vector('double',nrow(params))
+> > for (j in seq(nrow(params))) {
+> >   for (i in seq(n_fold)) {
+> >     pvals <- rowttests(t(X),y)$p.value
+> >     ind <- order(pvals)[1:params[j,][[2]]]
+> >     pred <- knn(train = X[-idx[[i]],ind],
+> >                 test = X[idx[[i]],ind],
+> >                 cl = y[-idx[[i]]], k = params[j,][[1]])
+> >     res[[i]] <- sum(pred != y[idx[[i]]])
+> >   }
+> >   error_rate_avg[[j]] <- sum(res)/length(y)
+> > }
+> > min(error_rate_avg) # minimum error rate
+> > mean(error_rate_avg) # mean error rate
+> > ```
+> > 
+> > The error rate is much lower than the one in **Exercise 4** because we did 
+> > not filter out p values from the test data in this case. This is not a 
+> > correct practice. The practice shown in **Exercise 4** is correct.
+> > 
+> {: .solution}
+{: .challenge}
+> 6. Repeat exercise 3, but now, instead of `sampleInfo$group`, use
+> `y = factor(as.numeric(format( sampleInfo$date, "%m")=="06"))`
+> What is the minimum error rate now?
+> We achieve much lower error rates when predicting date than when predicting 
+> the group. Because group is confounded with date, it is very possible that 
+> these predictors have no information about group and that our lower 0.5 error 
+> rates are due to the confounding with date. We will learn more about this in 
+> the batch effect chapter.
+> > ## Solution
+> >
+> > ```{r, eval=FALSE} 
+> > ms = 2^c(1:11)
+> > ks = seq(1,9,2)
+> > params = expand.grid(k=ks, m=ms)
+> > n_fold <- length(idx)
+> > error_rate_avg = vector('double',nrow(params))
+> > for (j in seq(nrow(params))) {
+> >   for (i in seq(n_fold)) {
+> >     pvals <- rowttests(t(X[-idx[[i]],]),y[-idx[[i]]])$p.value
+> >     ind <- order(pvals)[1:params[j,][[2]]]
+> >     pred <- knn(train = X[-idx[[i]],ind],
+> >                 test = X[idx[[i]],ind],
+> >                 cl = y[-idx[[i]]], k = params[j,][[1]])
+> >     res[[i]] <- sum(pred != y[idx[[i]]])
+> >   }
+> >   error_rate_avg[[j]] <- sum(res)/length(y)
+> > }
+> > min(error_rate_avg) # minimum error rate
+> > mean(error_rate_avg) # mean error rate
+> > ```
+> > 
+> {: .solution}
+{: .challenge}
