@@ -31,12 +31,14 @@ installed. Search for their names in the `Packages` tab in RStudio. There is no 
 install them again if you find them there.
 
 ~~~
-install.packages("devtools", "rafalib", "RColorBrewer", "gplots", "UsingR")
+install.packages("devtools", "rafalib", "RColorBrewer", "gplots", "UsingR", "class", "caret")
 library(devtools)
 library(rafalib)
 library(RColorBrewer)
 library(gplots)
 library(UsingR)
+library(class)
+library(caret)
 ~~~
 {: .r}
 
