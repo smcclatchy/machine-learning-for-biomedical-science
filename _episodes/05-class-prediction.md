@@ -30,17 +30,111 @@ textbook *The Elements of Statistical Learning: Data Mining, Inference, and
 Prediction*, by Trevor Hastie, Robert Tibshirani and Jerome Friedman,
 which can be found [here](http://statweb.stanford.edu/~tibs/ElemStatLearn/).
 
-Similar to inference in the context of regression, Machine Learning (ML) studies the relationships between outcomes $Y$ and covariates $X$. In ML, we call $X$ the predictors or features. The main difference between ML and inference is that, in ML, we are interested mainly in predicting $Y$ using $X$. Statistical models are used, but while in inference we estimate and interpret model parameters, in ML they are mainly a means to an end: predicting $Y$. 
+Similar to inference in the context of regression, Machine Learning (ML) studies 
+the relationships between outcomes $Y$ and covariates $X$. In ML, we call $X$ 
+the predictors or features. The main difference between ML and inference is 
+that, in ML, we are interested mainly in predicting $Y$ using $X$. Statistical 
+models are used, but while in inference we estimate and interpret model 
+parameters, in ML they are mainly a means to an end: predicting $Y$. 
 
-Here we introduce the main concepts needed to understand ML, along with two specific algorithms: regression and k nearest neighbors (kNN). Keep in mind that there are dozens of popular algorithms that we do not cover here.
+Here we introduce the main concepts needed to understand ML, along with two 
+specific algorithms: regression and k nearest neighbors (kNN). Keep in mind that there are dozens of popular algorithms that we do not cover here.
 
-In a previous section, we covered the very simple one-predictor case. However, most of ML is concerned with cases with more than one predictor. For illustration purposes, we move to a case in which $X$ is two dimensional and $Y$ is binary. We simulate a situation with a non-linear relationship using an example from the Hastie, Tibshirani and Friedman book. In the plot below, we show the actual values of $f(x_1,x_2)=E(Y \mid X_1=x_1,X_2=x_2)$ using colors. The following code is used to create a relatively complex conditional probability function. We create the test and train data we use later (code not shown). Here is the plot of $f(x_1,x_2)$ with red representing values close to 1, blue representing values close to 0, and yellow values in between.
+In a previous section, we covered the very simple one-predictor case. However, 
+most of ML is concerned with cases with more than one predictor. For 
+illustration purposes, we move to a case in which $X$ is two dimensional and $Y$ 
+is binary. We simulate a situation with a non-linear relationship using an 
+example from the Hastie, Tibshirani and Friedman book. In the plot below, we 
+show the actual values of $f(x_1,x_2)=E(Y \mid X_1=x_1,X_2=x_2)$ using colors. 
+The following code is used to create a relatively complex conditional 
+probability function. We create the test and train data we use later (code not shown). Here is the plot of $f(x_1,x_2)$ with red representing values close to 
+1, blue representing values close to 0, and yellow values in between.
+
+
+```r
+library(rafalib)
+library(RColorBrewer)
+hmcol <- colorRampPalette(rev(brewer.pal(11, "Spectral")))(100)
+mycols=c(hmcol[1],hmcol[100])
+
+set.seed(1)
+##create covariates and outcomes
+##outcomes are alwasy 50 0s and 50 1s
+s2=0.15
+
+##pick means to create a non linear conditional expectation
+library(MASS)
+M0 <- mvrnorm(10,c(1,0),s2*diag(2)) ##generate 10 means
+M1 <- rbind(mvrnorm(3,c(1,1),s2*diag(2)),
+            mvrnorm(3,c(0,1),s2*diag(2)),
+            mvrnorm(4,c(0,0),s2*diag(2)))
+
+###funciton to generate random pairs
+s<- sqrt(1/5)
+N=200
+makeX <- function(M,n=N,sigma=s*diag(2)){
+  z <- sample(1:10,n,replace=TRUE) ##pick n at random from above 10
+  m <- M[z,] ##these are the n vectors (2 components)
+  return(t(apply(m,1,function(mu) mvrnorm(1,mu,sigma)))) ##the final values
+}
+
+
+###create the training set and the test set
+x0 <- makeX(M0)##the final values for y=0 (green)
+testx0 <- makeX(M0)
+x1 <- makeX(M1)
+testx1 <-makeX(M1)
+x <- rbind(x0,x1) ##one matrix with everything
+test <- rbind(testx0,testx1)
+y <- c(rep(0,N),rep(1,N)) #the outcomes
+ytest <- c(rep(0,N),rep(1,N))
+cols <- mycols[c(rep(1,N),rep(2,N))]
+colstest <- cols
+
+##Create a grid so we can predict all of X,Y
+GS <- 150 ##grid size is GS x GS
+XLIM <- c(min(c(x[,1],test[,1])),max(c(x[,1],test[,1])))
+tmpx <- seq(XLIM[1],XLIM[2],len=GS)
+YLIM <- c(min(c(x[,2],test[,2])),max(c(x[,2],test[,2])))
+tmpy <- seq(YLIM[1],YLIM[2],len=GS)
+newx <- expand.grid(tmpx,tmpy) #grid used to show color contour of predictions
+
+###Bayes rule: best possible answer
+p <- function(x){ ##probability of Y given X
+  p0 <- mean(dnorm(x[1],M0[,1],s)*dnorm(x[2],M0[,2],s))
+  p1 <- mean(dnorm(x[1],M1[,1],s)*dnorm(x[2],M1[,2],s))
+  p1/(p0+p1)
+}
+
+###Create the bayesrule prediction
+bayesrule <- apply(newx,1,p)
+colshat <- bayesrule
+
+colshat <- hmcol[floor(bayesrule*100)+1]
+
+mypar()
+plot(x,type="n",xlab="X1",ylab="X2",xlim=XLIM,ylim=YLIM)
+points(newx,col=colshat,pch=16,cex=0.35)
+```
 
 ![Probability of Y=1 as a function of X1 and X2. Red is close to 1, yellow close to 0.5, and blue close to 0.](fig/05-class-prediction-conditional_prob-1.png)
 
 ![Probability of Y=1 as a function of X1 and X2. Red is close to 1, yellow close to 0.5, and blue close to 0.](../fig/05-class-prediction-conditional_prob-1.png)
 
 If we show points for which $E(Y \mid X=x)>0.5$ in red and the rest in blue, we see the boundary region that denotes the boundary in which we switch from predicting 0 to 1.
+
+
+```r
+mypar()
+
+colshat[bayesrule>=0.5] <- mycols[2]
+colshat[bayesrule<0.5] <- mycols[1]
+
+plot(x,type="n",xlab="X1",ylab="X2",xlim=XLIM,ylim=YLIM)
+points(newx,col=colshat,pch=16,cex=0.35)
+contour(tmpx,tmpy,matrix(round(bayesrule),GS,GS),levels=c(1,2),
+        add=TRUE,drawlabels=FALSE)
+```
 
 ![Bayes rule. The line divides part of the space for which probability is larger than 0.5 (red) and lower than 0.5 (blue).](fig/05-class-prediction-bayes_rule-1.png)
 
@@ -549,6 +643,32 @@ for(k in c(1,100)){
 ```
 
 To visualize why we make no errors in the train set and many errors in the test set when $k=1$ and obtain more stable results from $k=100$, we show the prediction regions (code not shown):
+
+
+```r
+library(class)
+mypar(2,2)
+for(k in c(1,100)){
+  ##predict on train
+  yhat <- knn(x,x,y,k=k)
+  ##make plot
+  yhat <- knn(x,newx,y,k=k)
+  colshat <- mycols[as.numeric(yhat)]
+  plot(x,type="n",xlab="X1",ylab="X2",xlim=XLIM,ylim=YLIM)
+  points(newx,col=colshat,cex=0.35,pch=16)
+  contour(tmpx,tmpy,matrix(as.numeric(yhat),GS,GS),levels=c(1,2),
+          add=TRUE,drawlabels=FALSE)
+  points(x,bg=cols,pch=21)
+  title(paste("Train: KNN (",k,")",sep=""))
+  
+  plot(test,type="n",xlab="X1",ylab="X2",xlim=XLIM,ylim=YLIM)
+  points(newx,col=colshat,cex=0.35,pch=16)
+  contour(tmpx,tmpy,matrix(as.numeric(yhat),GS,GS),levels=c(1,2),
+          add=TRUE,drawlabels=FALSE)
+  points(test,bg=cols,pch=21)
+  title(paste("Test: KNN (",k,")",sep=""))
+}
+```
 
 ![Prediction regions obtained with kNN for k=1 (top) and k=200 (bottom). We show both train (left) and test data (right).](fig/05-class-prediction-knn-1.png)
 
