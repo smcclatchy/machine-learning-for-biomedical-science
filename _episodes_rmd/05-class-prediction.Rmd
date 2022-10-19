@@ -54,79 +54,78 @@ probability function. We create the test and train data we use later (code not
 shown). Here is the plot of $f(x_1,x_2)$ with red representing values close to 
 1, blue representing values close to 0, and yellow values in between.
 
-```{r conditional_prob, fig.cap="Probability of Y=1 as a function of X1 and X2. Red is close to 1, yellow close to 0.5, and blue close to 0."}
+```{r conditional_prob, fig.cap="Probability of Y=1 as a function of X1 and X2. Red is close to 1, yellow close to 0.5, and blue close to 0.", eval=FALSE}
 library(rafalib)
 library(RColorBrewer)
-hmcol <- colorRampPalette(rev(brewer.pal(11, "Spectral")))(100)
-mycols=c(hmcol[1],hmcol[100])
+hmcol <- colorRampPalette(rev(brewer.pal(11,  "Spectral")))(100)
+mycols=c(hmcol[1], hmcol[100])
 
 set.seed(1)
-##create covariates and outcomes
-##outcomes are alwasy 50 0s and 50 1s
+## create covariates and outcomes
+## outcomes are always 50 0s and 50 1s
 s2=0.15
 
-##pick means to create a non linear conditional expectation
+## pick means to create a non linear conditional expectation
 library(MASS)
-M0 <- mvrnorm(10,c(1,0),s2*diag(2)) ##generate 10 means
-M1 <- rbind(mvrnorm(3,c(1,1),s2*diag(2)),
-            mvrnorm(3,c(0,1),s2*diag(2)),
-            mvrnorm(4,c(0,0),s2*diag(2)))
+M0 <- mvrnorm(10, c(1,0), s2*diag(2)) ## generate 10 means
+M1 <- rbind(mvrnorm(3, c(1,1), s2*diag(2)),
+            mvrnorm(3, c(0,1), s2*diag(2)),
+            mvrnorm(4, c(0,0),s2*diag(2)))
 
-###funciton to generate random pairs
-s<- sqrt(1/5)
+### function to generate random pairs
+s <- sqrt(1/5)
 N=200
-makeX <- function(M,n=N,sigma=s*diag(2)){
-  z <- sample(1:10,n,replace=TRUE) ##pick n at random from above 10
-  m <- M[z,] ##these are the n vectors (2 components)
-  return(t(apply(m,1,function(mu) mvrnorm(1,mu,sigma)))) ##the final values
+makeX <- function(M, n=N, sigma=s*diag(2)){
+  z <- sample(1:10, n, replace=TRUE) ## pick n at random from above 10
+  m <- M[z,] ## these are the n vectors (2 components)
+  return(t(apply(m, 1, function(mu) mvrnorm(1, mu, sigma)))) ## the final values
 }
 
-
-###create the training set and the test set
-x0 <- makeX(M0)##the final values for y=0 (green)
+### create the training set and the test set
+x0 <- makeX(M0) ##the final values for y=0 (green)
 testx0 <- makeX(M0)
 x1 <- makeX(M1)
-testx1 <-makeX(M1)
-x <- rbind(x0,x1) ##one matrix with everything
-test <- rbind(testx0,testx1)
-y <- c(rep(0,N),rep(1,N)) #the outcomes
-ytest <- c(rep(0,N),rep(1,N))
-cols <- mycols[c(rep(1,N),rep(2,N))]
+testx1 <- makeX(M1)
+x <- rbind(x0, x1) ## one matrix with everything
+test <- rbind(testx0, testx1)
+y <- c(rep(0, N), rep(1, N)) # the outcomes
+ytest <- c(rep(0, N), rep(1, N))
+cols <- mycols[c(rep(1, N), rep(2, N))]
 colstest <- cols
 
-##Create a grid so we can predict all of X,Y
-GS <- 150 ##grid size is GS x GS
-XLIM <- c(min(c(x[,1],test[,1])),max(c(x[,1],test[,1])))
-tmpx <- seq(XLIM[1],XLIM[2],len=GS)
-YLIM <- c(min(c(x[,2],test[,2])),max(c(x[,2],test[,2])))
-tmpy <- seq(YLIM[1],YLIM[2],len=GS)
-newx <- expand.grid(tmpx,tmpy) #grid used to show color contour of predictions
+## Create a grid so we can predict all of X,Y
+GS <- 150 ## grid size is GS x GS
+XLIM <- c(min(c(x[,1], test[,1])), max(c(x[,1], test[,1])))
+tmpx <- seq(XLIM[1], XLIM[2], len=GS)
+YLIM <- c(min(c(x[,2], test[,2])), max(c(x[,2], test[,2])))
+tmpy <- seq(YLIM[1], YLIM[2], len=GS)
+newx <- expand.grid(tmpx, tmpy) #grid used to show color contour of predictions
 
-###Bayes rule: best possible answer
+### Bayes rule: best possible answer
 p <- function(x){ ##probability of Y given X
-  p0 <- mean(dnorm(x[1],M0[,1],s)*dnorm(x[2],M0[,2],s))
-  p1 <- mean(dnorm(x[1],M1[,1],s)*dnorm(x[2],M1[,2],s))
+  p0 <- mean(dnorm(x[1], M0[,1], s) * dnorm(x[2], M0[,2], s))
+  p1 <- mean(dnorm(x[1], M1[,1], s) * dnorm(x[2], M1[,2], s))
   p1/(p0+p1)
 }
 
-###Create the bayesrule prediction
-bayesrule <- apply(newx,1,p)
+### Create the bayesrule prediction
+bayesrule <- apply(newx, 1, p)
 colshat <- bayesrule
 
-colshat <- hmcol[floor(bayesrule*100)+1]
+colshat <- hmcol[floor(bayesrule * 100) + 1]
 
 mypar()
-plot(x,type="n",xlab="X1",ylab="X2",xlim=XLIM,ylim=YLIM)
-points(newx,col=colshat,pch=16,cex=0.35)
+plot(x, type="n", xlab="X1", ylab="X2", xlim=XLIM, ylim=YLIM)
+points(newx, col=colshat, pch=16, cex=0.35)
 ```
 
 ![Probability of Y=1 as a function of X1 and X2. Red is close to 1, yellow close to 0.5, and blue close to 0.](../fig/05-class-prediction-conditional_prob-1.png)
 
-If we show points for which $E(Y \mid X=x)>0.5$ in red and the rest in blue, we 
-see the boundary region that denotes the boundary in which we switch from 
+If we show points for which $E(Y \mid X=x) > 0.5$ in red and the rest in blue, 
+we see the boundary region that denotes the boundary in which we switch from 
 predicting 0 to 1.
 
-```{r bayes_rule,fig.cap="Bayes rule. The line divides part of the space for which probability is larger than 0.5 (red) and lower than 0.5 (blue)."}
+```{r bayes_rule,fig.cap="Bayes rule. The line divides part of the space for which probability is larger than 0.5 (red) and lower than 0.5 (blue).", eval=FALSE}
 mypar()
 
 colshat[bayesrule>=0.5] <- mycols[2]
@@ -147,62 +146,17 @@ will review two specific ML techniques. First, we need to review the main
 concept we use to evaluate the performance of these methods. 
 
 #### Training and test sets
-
-Let's download and then load RData file that will enable us to run following 
-code.
-[Download ml-biomed-classpredict-setup-20221019.RData](https://go.sbamin.com/1YMJ).
-It should be around 41.5 MB (with md5 checksum of *6cabda5d1e0600db885a602094697708*).
-Once you have RData file on your computer, open up RStudio and run following:
-
-```{r base setup}
-## Load R packages given in Setup file ----
-print("Loading Setup")
-library(devtools)
-library(rafalib)
-library(RColorBrewer)
-library(gplots)
-library(class)
-library(caret)
-
-library(tissuesGeneExpression) 
-data(tissuesGeneExpression)
-
-library(genefilter)
-library(Biobase)
-library(SpikeIn)
-library(hgu95acdf)
-data(SpikeIn95)
-
-print("Finished Loading Setup")
-print("Print sessionInfo()")
-print(devtools::session_info())
-```
-
-Now load RData file you just downloaded above. Note that path to
-ml-biomed-classpredict-setup-20221019.RData may differ depending on where you 
-have placed RData file. Adjust path accordingly in the command below.
-
-```{r load data for class prediction}
-## locate where your working dir is first.
-## that can help you identify relative path of RData file.
-getwd()
-
-load("data/ml-biomed-classpredict-setup-20221019.RData")
-## now list available R objects that we can use for class prediction code below
-ls()
-```
-
 In the code (not shown) for the first plot in this chapter, we created a test 
 and a training set. We plot them here:
 
-```{r test_train, fig.cap="Training data (left) and test data (right).", fig.width=10.5,fig.height=5.25}
+```{r test_train, fig.cap="Training data (left) and test data (right).", fig.width=10.5, fig.height=5.25, eval=FALSE}
 #x, test, cols, and coltest were created in code that was not shown
 #x is training x1 and x2, test is test x1 and x2
 #cols (0=blue, 1=red) are training observations
 #coltests are test observations
-mypar(1,2)
-plot(x,pch=21,bg=cols,xlab="X1",ylab="X2",xlim=XLIM,ylim=YLIM)
-plot(test,pch=21,bg=colstest,xlab="X1",ylab="X2",xlim=XLIM,ylim=YLIM)
+mypar(1, 2)
+plot(x, pch=21, bg=cols, xlab="X1", ylab="X2", xlim=XLIM, ylim=YLIM)
+plot(test, pch=21, bg=colstest, xlab="X1", ylab="X2", xlim=XLIM, ylim=YLIM)
 ```
 
 ![Training data (left) and test data (right).](../fig/05-class-prediction-test_train-1.png)
@@ -255,7 +209,7 @@ well as the boundary. We can also use the `predict` function to obtain predicted
 values for our test set. 
 **Note that nowhere do we fit the model on the test set:** 
 
-```{r regression_prediction, fig.cap="We estimate the probability of 1 with a linear regression model with X1 and X2 as predictors. The resulting prediction map is divided into parts that are larger than 0.5 (red) and lower than 0.5 (blue)."}
+```{r regression_prediction, fig.cap="We estimate the probability of 1 with a linear regression model with X1 and X2 as predictors. The resulting prediction map is divided into parts that are larger than 0.5 (red) and lower than 0.5 (blue).", eval=FALSE}
 colshat <- yhat
 colshat[yhat>=0.5] <- mycols[2]
 colshat[yhat<0.5] <- mycols[1]
