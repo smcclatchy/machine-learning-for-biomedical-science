@@ -125,7 +125,7 @@ If we show points for which $E(Y \mid X=x) > 0.5$ in red and the rest in blue,
 we see the boundary region that denotes the boundary in which we switch from 
 predicting 0 to 1.
 
-```{r bayes_rule,fig.cap="Bayes rule. The line divides part of the space for which probability is larger than 0.5 (red) and lower than 0.5 (blue).", eval=FALSE}
+```{r bayes_rule,fig.cap="Bayes rule. The line divides part of the space for which probability is larger than 0.5 (red) and lower than 0.5 (blue).", message=FALSE}
 mypar()
 
 colshat[bayesrule>=0.5] <- mycols[2]
@@ -149,7 +149,7 @@ concept we use to evaluate the performance of these methods.
 In the code (not shown) for the first plot in this chapter, we created a test 
 and a training set. We plot them here:
 
-```{r test_train, fig.cap="Training data (left) and test data (right).", fig.width=10.5, fig.height=5.25, eval=FALSE}
+```{r test_train, fig.cap="Training data (left) and test data (right).", fig.width=10.5, fig.height=5.25, message=FALSE}
 #x, test, cols, and coltest were created in code that was not shown
 #x is training x1 and x2, test is test x1 and x2
 #cols (0=blue, 1=red) are training observations
@@ -209,7 +209,7 @@ well as the boundary. We can also use the `predict` function to obtain predicted
 values for our test set. 
 **Note that nowhere do we fit the model on the test set:** 
 
-```{r regression_prediction, fig.cap="We estimate the probability of 1 with a linear regression model with X1 and X2 as predictors. The resulting prediction map is divided into parts that are larger than 0.5 (red) and lower than 0.5 (blue).", eval=FALSE}
+```{r regression_prediction, fig.cap="We estimate the probability of 1 with a linear regression model with X1 and X2 as predictors. The resulting prediction map is divided into parts that are larger than 0.5 (red) and lower than 0.5 (blue).", message=FALSE}
 colshat <- yhat
 colshat[yhat>=0.5] <- mycols[2]
 colshat[yhat<0.5] <- mycols[1]

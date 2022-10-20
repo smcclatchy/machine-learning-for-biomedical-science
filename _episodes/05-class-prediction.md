@@ -142,6 +142,8 @@ contour(tmpx,tmpy,matrix(round(bayesrule),GS,GS),levels=c(1,2),
 ~~~
 {: .language-r}
 
+<img src="../fig/rmd-05-bayes_rule-1.png" alt="Bayes rule. The line divides part of the space for which probability is larger than 0.5 (red) and lower than 0.5 (blue)." width="612" style="display: block; margin: auto;" />
+
 ![Bayes rule. The line divides part of the space for which probability is larger than 0.5 (red) and lower than 0.5 (blue).](../fig/05-class-prediction-bayes_rule-1.png)
 
 The above plots relate to the "truth" that we do not get to see. Most ML 
@@ -165,6 +167,8 @@ plot(x, pch=21, bg=cols, xlab="X1", ylab="X2", xlim=XLIM, ylim=YLIM)
 plot(test, pch=21, bg=colstest, xlab="X1", ylab="X2", xlim=XLIM, ylim=YLIM)
 ~~~
 {: .language-r}
+
+<img src="../fig/rmd-05-test_train-1.png" alt="Training data (left) and test data (right)." width="756" style="display: block; margin: auto;" />
 
 ![Training data (left) and test data (right).](../fig/05-class-prediction-test_train-1.png)
 
@@ -266,7 +270,19 @@ b <- (0.5 - fit1$coef[1])/fit1$coef[3] #boundary intercept
 yhat <- predict(fit1,newdata=data.frame(X1=test[,1],X2=test[,2]))
 yhat <- as.numeric(yhat>0.5)
 cat("Linear regression prediction error in test:",1-mean(yhat==ytest),"\n")
+~~~
+{: .language-r}
 
+
+
+~~~
+Linear regression prediction error in test: 0.32 
+~~~
+{: .output}
+
+
+
+~~~
 plot(test,type="n",xlab="X1",ylab="X2",xlim=XLIM,ylim=YLIM)
 abline(b,m)
 points(newx,col=colshat,pch=16,cex=0.35)
@@ -275,6 +291,8 @@ points(newx,col=colshat,pch=16,cex=0.35)
 points(test,bg=cols,pch=21)
 ~~~
 {: .language-r}
+
+<img src="../fig/rmd-05-regression_prediction-1.png" alt="We estimate the probability of 1 with a linear regression model with X1 and X2 as predictors. The resulting prediction map is divided into parts that are larger than 0.5 (red) and lower than 0.5 (blue)." width="612" style="display: block; margin: auto;" />
 
 ![We estimate the probability of 1 with a linear regression model with X1 and X2 as predictors. The resulting prediction map is divided into parts that are larger than 0.5 (red) and lower than 0.5 (blue).](../fig/05-class-prediction-regression_prediction-1.png)
 
