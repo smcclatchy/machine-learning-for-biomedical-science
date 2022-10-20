@@ -351,26 +351,28 @@ would have been to transform the data separately for each fold, by
 calculating a rotation and dimension reduction using the training set only
 and applying this to the test set.
 
-> ## Exercises                         
-> Load the following dataset:                                            
-> 
-> 
-> ~~~
-> library(GSE5859Subset)
-> data(GSE5859Subset)
-> ~~~
-> {: .language-r}
-> And define the outcome and predictors. To make the problem more difficult, we 
-> will only consider autosomal genes:
-> 
-> ~~~
-> y = factor(sampleInfo$group)
-> X = t(geneExpression)
-> out = which(geneAnnotation$CHR %in% c("chrX","chrY"))
-> X = X[,-out]
-> ~~~
-> {: .language-r}
-> 1. Use the `createFold` function in the `caret` package, set the seed to 1 
+## Exercises                         
+Load the following dataset:                                            
+
+
+~~~
+library(GSE5859Subset)
+data(GSE5859Subset)
+~~~
+{: .language-r}
+
+And define the outcome and predictors. To make the problem more difficult, we 
+will only consider autosomal genes:
+
+~~~
+y = factor(sampleInfo$group)
+X = t(geneExpression)
+out = which(geneAnnotation$CHR %in% c("chrX","chrY"))
+X = X[,-out]
+~~~
+{: .language-r}
+> ## Exercise 1 
+> Use the `createFold` function in the `caret` package, set the seed to 1 
 > `set.seed(1)` and create 10 folds of `y`. What is the 2nd entry in the fold 3?
 > 
 > > ## Solution
@@ -385,7 +387,8 @@ and applying this to the test set.
 > > {: .language-r}
 > {: .solution}
 {: .challenge}
-> 2. We are going to use kNN. We are going to consider a smaller set of 
+> ## Exercise 2
+> We are going to use kNN. We are going to consider a smaller set of 
 > predictors by using filtering gene using t-tests. Specifically, we will 
 > perform a t-test and select the $m$ genes with the smallest p-values.
 > 
@@ -409,7 +412,8 @@ and applying this to the test set.
 > > {: .language-r}
 > {: .solution}
 {: .challenge}
-> 3. Now run through all 5 folds. What is our error rate?
+> ## Exercise 3
+> Now run through all 5 folds. What is our error rate?
 > **(total number of errors / total predictions)**
 > > ## Solution
 > >
@@ -431,7 +435,8 @@ and applying this to the test set.
 > > {: .language-r}
 > {: .solution}
 {: .challenge}
-> 4. Now we are going to select the best values of k and m. Use the expand grid 
+> ## Exercise 4
+> Now we are going to select the best values of k and m. Use the expand grid 
 > function to try out the following values:
 > 
 > 
@@ -471,7 +476,8 @@ and applying this to the test set.
 > > {: .language-r}
 > {: .solution}
 {: .challenge}
-> 5. Repeat exercise 4, but now perform the t-test filtering before the cross
+> ## Exercise 5
+> Repeat exercise 4, but now perform the t-test filtering before the cross
 > validation. Note how this biases the entire result and gives us much lower 
 > estimated error rates.
 > > ## Solution
@@ -505,7 +511,8 @@ and applying this to the test set.
 > > 
 > {: .solution}
 {: .challenge}
-> 6. Repeat exercise 3, but now, instead of `sampleInfo$group`, use
+> ## Exercise 6
+> Repeat exercise 3, but now, instead of `sampleInfo$group`, use
 > `y = factor(as.numeric(format( sampleInfo$date, "%m")=="06"))`
 > What is the minimum error rate now?
 > We achieve much lower error rates when predicting date than when predicting 

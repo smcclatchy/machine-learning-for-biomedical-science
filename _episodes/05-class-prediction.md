@@ -120,6 +120,8 @@ points(newx, col=colshat, pch=16, cex=0.35)
 ~~~
 {: .language-r}
 
+<img src="../fig/rmd-05-conditional_prob-1.png" alt="Probability of Y=1 as a function of X1 and X2. Red is close to 1, yellow close to 0.5, and blue close to 0." width="612" style="display: block; margin: auto;" />
+
 ![Probability of Y=1 as a function of X1 and X2. Red is close to 1, yellow close to 0.5, and blue close to 0.](../fig/05-class-prediction-conditional_prob-1.png)
 
 If we show points for which $E(Y \mid X=x) > 0.5$ in red and the rest in blue, 
@@ -183,47 +185,9 @@ A first naive approach to this ML problem is to fit a
 ##x and y were created in the code (not shown) for the first plot
 #y is outcome for the training set
 X1 <- x[,1] ##these are the covariates
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in eval(expr, envir, enclos): object 'x' not found
-~~~
-{: .error}
-
-
-
-~~~
 X2 <- x[,2] 
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in eval(expr, envir, enclos): object 'x' not found
-~~~
-{: .error}
-
-
-
-~~~
 fit1 <- lm(y~X1+X2)
-~~~
-{: .language-r}
 
-
-
-~~~
-Error in eval(predvars, data, env): object 'y' not found
-~~~
-{: .error}
-
-
-
-~~~
 ## get summary of a fitted model
 summary(fit1)
 ~~~
@@ -232,9 +196,27 @@ summary(fit1)
 
 
 ~~~
-Error in summary(fit1): object 'fit1' not found
+
+Call:
+lm(formula = y ~ X1 + X2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.99350 -0.36244  0.00274  0.37927  0.92329 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.55305    0.02559  21.608  < 2e-16 ***
+X1          -0.20902    0.02378  -8.790  < 2e-16 ***
+X2           0.22230    0.02610   8.517 3.42e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.4382 on 397 degrees of freedom
+Multiple R-squared:  0.2377,	Adjusted R-squared:  0.2339 
+F-statistic: 61.91 on 2 and 397 DF,  p-value: < 2.2e-16
 ~~~
-{: .error}
+{: .output}
 
 Once we the have fitted values, we can estimate $f(x_1,x_2)$ with 
 $\hat{f}(x_1,x_2)=\hat{\beta}_0 + \hat{\beta}_1x_1 +\hat{\beta}_2 x_2$. To 
@@ -246,59 +228,26 @@ boundary region:
 ~~~
 ##prediction on train
 yhat <- predict(fit1)
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in predict(fit1): object 'fit1' not found
-~~~
-{: .error}
-
-
-
-~~~
 yhat <- as.numeric(yhat>0.5)
+cat("Linear regression prediction error in train:", 1-mean(yhat==y), "\n")
 ~~~
 {: .language-r}
 
 
 
 ~~~
-Error in eval(expr, envir, enclos): object 'yhat' not found
+Linear regression prediction error in train: 0.2975 
 ~~~
-{: .error}
-
-
-
-~~~
-cat("Linear regression prediction error in train:",1-mean(yhat==y),"\n")
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in mean(yhat == y): object 'yhat' not found
-~~~
-{: .error}
+{: .output}
 
 We can quickly obtain predicted values for any set of values using the `predict` 
 function:
 
 
 ~~~
-yhat <- predict(fit1,newdata=data.frame(X1=newx[,1],X2=newx[,2]))
+yhat <- predict(fit1, newdata=data.frame(X1=newx[,1], X2=newx[,2]))
 ~~~
 {: .language-r}
-
-
-
-~~~
-Error in predict(fit1, newdata = data.frame(X1 = newx[, 1], X2 = newx[, : object 'fit1' not found
-~~~
-{: .error}
 
 Now we can create a plot showing where we predict 1s and where we predict 0s, as 
 well as the boundary. We can also use the `predict` function to obtain predicted 
@@ -354,26 +303,15 @@ we compare $k=1$ and $k=100$.
 ~~~
 library(class)
 mypar(2,2)
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in mypar(2, 2): could not find function "mypar"
-~~~
-{: .error}
-
-
-
-~~~
-for(k in c(1,100)){
-  ##predict on train
-  yhat <- knn(x,x,y,k=k)
-  cat("KNN prediction error in train:",1-mean((as.numeric(yhat)-1)==y),"\n")
-  ##make plot
+for(k in c(1, 100)){
+  ## predict on train
+  yhat <- knn(x, x, y, k=k)
+  cat("KNN prediction error in train:", 
+      1-mean((as.numeric(yhat)-1)==y), "\n")
+  ## make plot
   yhat <- knn(x,test,y,k=k)
-  cat("KNN prediction error in test:",1-mean((as.numeric(yhat)-1)==ytest),"\n")
+  cat("KNN prediction error in test:", 
+      1-mean((as.numeric(yhat)-1)==ytest), "\n")
 }
 ~~~
 {: .language-r}
@@ -381,9 +319,12 @@ for(k in c(1,100)){
 
 
 ~~~
-Error in as.matrix(train): object 'x' not found
+KNN prediction error in train: 0 
+KNN prediction error in test: 0.3375 
+KNN prediction error in train: 0.2725 
+KNN prediction error in test: 0.3125 
 ~~~
-{: .error}
+{: .output}
 
 To visualize why we make no errors in the train set and many errors in the test 
 set when $k=1$ and obtain more stable results from $k=100$, we show the 
@@ -393,19 +334,6 @@ prediction regions (code not shown):
 ~~~
 library(class)
 mypar(2,2)
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in mypar(2, 2): could not find function "mypar"
-~~~
-{: .error}
-
-
-
-~~~
 for(k in c(1,100)){
   ##predict on train
   yhat <- knn(x,x,y,k=k)
@@ -429,12 +357,7 @@ for(k in c(1,100)){
 ~~~
 {: .language-r}
 
-
-
-~~~
-Error in as.matrix(train): object 'x' not found
-~~~
-{: .error}
+<img src="../fig/rmd-05-knn-1.png" alt="Prediction regions obtained with kNN for k=1 (top) and k=200 (bottom). We show both train (left) and test data (right)." width="756" style="display: block; margin: auto;" />
 
 ![Prediction regions obtained with kNN for k=1 (top) and k=200 (bottom). We show both train (left) and test data (right).](../fig/05-class-prediction-knn-1.png)
 
@@ -459,47 +382,21 @@ We start by computing the error rates...
 ~~~
 ###Bayes Rule
 yhat <- apply(test,1,p)
+cat("Bayes rule prediction error in train", 1-mean(round(yhat)==y), "\n")
 ~~~
 {: .language-r}
 
 
 
 ~~~
-Error in match.fun(FUN): object 'p' not found
+Bayes rule prediction error in train 0.2825 
 ~~~
-{: .error}
-
-
-
-~~~
-cat("Bayes rule prediction error in train",1-mean(round(yhat)==y),"\n")
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in mean(round(yhat) == y): object 'yhat' not found
-~~~
-{: .error}
+{: .output}
 
 
 
 ~~~
 bayes.error=1-mean(round(yhat)==y)
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in mean(round(yhat) == y): object 'yhat' not found
-~~~
-{: .error}
-
-
-
-~~~
 train.error <- rep(0,16)
 test.error <- rep(0,16)
 for(k in seq(along=train.error)){
@@ -513,13 +410,6 @@ for(k in seq(along=train.error)){
 ~~~
 {: .language-r}
 
-
-
-~~~
-Error in as.matrix(train): object 'x' not found
-~~~
-{: .error}
-
 ... and then plot the error rates against values of $k$. We also show the Bayes 
 rules error rate as a horizontal line.
 
@@ -527,37 +417,11 @@ rules error rate as a horizontal line.
 ~~~
 ks <- 2^(seq(along=train.error)/2)
 mypar()
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in mypar(): could not find function "mypar"
-~~~
-{: .error}
-
-
-
-~~~
 plot(ks, train.error, type="n", xlab="K", ylab="Prediction Error", log="x",
      ylim=range(c(test.error, train.error)))
 lines(ks, train.error, type="b", col=4, lty=2, lwd=2)
 lines(ks, test.error, type="b", col=5, lty=3, lwd=2)
 abline(h=bayes.error, col=6)
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in int_abline(a = a, b = b, h = h, v = v, untf = untf, ...): object 'bayes.error' not found
-~~~
-{: .error}
-
-
-
-~~~
 legend("bottomright", c("Train","Test","Bayes"), col=c(4,5,6), lty=c(2,3,1), box.lwd=0)
 ~~~
 {: .language-r}

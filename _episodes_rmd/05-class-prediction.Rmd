@@ -54,7 +54,7 @@ probability function. We create the test and train data we use later (code not
 shown). Here is the plot of $f(x_1,x_2)$ with red representing values close to 
 1, blue representing values close to 0, and yellow values in between.
 
-```{r conditional_prob, fig.cap="Probability of Y=1 as a function of X1 and X2. Red is close to 1, yellow close to 0.5, and blue close to 0.", eval=FALSE}
+```{r conditional_prob, fig.cap="Probability of Y=1 as a function of X1 and X2. Red is close to 1, yellow close to 0.5, and blue close to 0."}
 library(rafalib)
 library(RColorBrewer)
 hmcol <- colorRampPalette(rev(brewer.pal(11,  "Spectral")))(100)
@@ -194,14 +194,14 @@ boundary region:
 ##prediction on train
 yhat <- predict(fit1)
 yhat <- as.numeric(yhat>0.5)
-cat("Linear regression prediction error in train:",1-mean(yhat==y),"\n")
+cat("Linear regression prediction error in train:", 1-mean(yhat==y), "\n")
 ```
 
 We can quickly obtain predicted values for any set of values using the `predict` 
 function:
 
 ```{r}
-yhat <- predict(fit1,newdata=data.frame(X1=newx[,1],X2=newx[,2]))
+yhat <- predict(fit1, newdata=data.frame(X1=newx[,1], X2=newx[,2]))
 ```
 
 Now we can create a plot showing where we predict 1s and where we predict 0s, as 
@@ -255,13 +255,15 @@ we compare $k=1$ and $k=100$.
 ```{r, message=FALSE}
 library(class)
 mypar(2,2)
-for(k in c(1,100)){
-  ##predict on train
-  yhat <- knn(x,x,y,k=k)
-  cat("KNN prediction error in train:",1-mean((as.numeric(yhat)-1)==y),"\n")
-  ##make plot
+for(k in c(1, 100)){
+  ## predict on train
+  yhat <- knn(x, x, y, k=k)
+  cat("KNN prediction error in train:", 
+      1-mean((as.numeric(yhat)-1)==y), "\n")
+  ## make plot
   yhat <- knn(x,test,y,k=k)
-  cat("KNN prediction error in test:",1-mean((as.numeric(yhat)-1)==ytest),"\n")
+  cat("KNN prediction error in test:", 
+      1-mean((as.numeric(yhat)-1)==ytest), "\n")
 }
 ```
 
@@ -316,7 +318,7 @@ We start by computing the error rates...
 ```{r}
 ###Bayes Rule
 yhat <- apply(test,1,p)
-cat("Bayes rule prediction error in train",1-mean(round(yhat)==y),"\n")
+cat("Bayes rule prediction error in train", 1-mean(round(yhat)==y), "\n")
 bayes.error=1-mean(round(yhat)==y)
 train.error <- rep(0,16)
 test.error <- rep(0,16)
