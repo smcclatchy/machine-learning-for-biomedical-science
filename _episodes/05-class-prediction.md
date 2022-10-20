@@ -392,7 +392,7 @@ $f(x_1,x_2)$ is closer to the truth.
 
 Here we include a comparison of the test and train set errors for various values 
 of $k$. We also include the error rate that we would make if we actually knew 
-$\mbox{E}(Y \mid X_1=x1,X_2=x_2)$ referred to as _Bayes Rule_.
+${E}(Y \mid X_1=x1,X_2=x_2)$ referred to as _Bayes Rule_.
 
 We start by computing the error rates...
 
@@ -445,8 +445,6 @@ legend("bottomright", c("Train","Test","Bayes"), col=c(4,5,6), lty=c(2,3,1), box
 {: .language-r}
 
 <img src="../fig/rmd-05-bayes_rule2-1.png" alt="Prediction error in train (pink) and test (green) versus number of neighbors. The yellow line represents what one obtains with Bayes Rule." width="612" style="display: block; margin: auto;" />
-
-![Prediction error in train (pink) and test (green) versus number of neighbors. The yellow line represents what one obtains with Bayes Rule.](../fig/05-class-prediction-bayes_rule2-1.png)
 
 Note that these error rates are random variables and have standard errors. In 
 the next section we describe cross-validation which helps reduce some of this 
