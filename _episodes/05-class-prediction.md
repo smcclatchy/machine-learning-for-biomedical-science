@@ -392,7 +392,7 @@ $f(x_1,x_2)$ is closer to the truth.
 
 Here we include a comparison of the test and train set errors for various values 
 of $k$. We also include the error rate that we would make if we actually knew 
-${E}(Y \mid X_1=x1,X_2=x_2)$ referred to as _Bayes Rule_.
+${E}(Y | X_1=x1, X_2=x_2)$ referred to as _Bayes Rule_.
 
 We start by computing the error rates...
 
