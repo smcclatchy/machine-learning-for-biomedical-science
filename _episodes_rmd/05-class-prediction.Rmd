@@ -14,9 +14,9 @@ keypoints:
 math: yes
 ---
 
-```{r options, echo=FALSE}
-library(knitr)
-opts_chunk$set(fig.path=paste0("fig/", sub("(.*).Rmd","\\1",basename(knitr:::knit_concord$get('infile'))), "-"))
+```{r, include=FALSE}
+source("../bin/chunk-options.R")
+knitr_fig_path("05-")
 ```
 
 ## Class Prediction
@@ -336,12 +336,12 @@ rules error rate as a horizontal line.
 ```{r bayes_rule2, fig.cap="Prediction error in train (pink) and test (green) versus number of neighbors. The yellow line represents what one obtains with Bayes Rule.",message=FALSE}
 ks <- 2^(seq(along=train.error)/2)
 mypar()
-plot(ks,train.error,type="n",xlab="K",ylab="Prediction Error",log="x",
-     ylim=range(c(test.error,train.error)))
-lines(ks,train.error,type="b",col=4,lty=2,lwd=2)
-lines(ks,test.error,type="b",col=5,lty=3,lwd=2)
-abline(h=bayes.error,col=6)
-legend("bottomright",c("Train","Test","Bayes"),col=c(4,5,6),lty=c(2,3,1),box.lwd=0)
+plot(ks, train.error, type="n", xlab="K", ylab="Prediction Error", log="x",
+     ylim=range(c(test.error, train.error)))
+lines(ks, train.error, type="b", col=4, lty=2, lwd=2)
+lines(ks, test.error, type="b", col=5, lty=3, lwd=2)
+abline(h=bayes.error, col=6)
+legend("bottomright", c("Train","Test","Bayes"), col=c(4,5,6), lty=c(2,3,1), box.lwd=0)
 ```
 
 ![Prediction error in train (pink) and test (green) versus number of neighbors. The yellow line represents what one obtains with Bayes Rule.](../fig/05-class-prediction-bayes_rule2-1.png)

@@ -12,9 +12,9 @@ keypoints:
 math: yes
 ---
 
-```{r options, echo=FALSE}
-library(knitr)
-opts_chunk$set(fig.path=paste0("fig/", sub("(.*).Rmd","\\1",basename(knitr:::knit_concord$get('infile'))), "-"))
+```{r, include=FALSE}
+source("../bin/chunk-options.R")
+knitr_fig_path("04-")
 ```
 
 ## Smoothing 
@@ -24,7 +24,7 @@ Smoothing is a very powerful technique used all across data analysis. It is desi
 The following data are gene expression measurements from replicated RNA samples. 
 
 
-```{r,message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 ##Following three packages are available from Bioconductor
 library(Biobase)
 library(SpikeIn)

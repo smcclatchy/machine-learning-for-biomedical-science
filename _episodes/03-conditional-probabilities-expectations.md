@@ -45,7 +45,7 @@ We use the son and father height example to illustrate how regression can be int
 
 
 
-```r
+~~~
 library(rafalib)
 mypar(1,1)
 data(father.son,package="UsingR")
@@ -53,9 +53,10 @@ x=round(father.son$fheight) ##round to nearest inch
 y=round(father.son$sheight)
 hist(y,breaks=seq(min(y),max(y)))
 abline(v=mean(y),col="red",lwd=2)
-```
+~~~
+{: .language-r}
 
-![Histogram of son heights.](fig/03-conditional-probabilities-expectations-height_hist-1.png)
+<img src="../fig/rmd-03-height_hist-1.png" alt="Histogram of son heights." width="612" style="display: block; margin: auto;" />
 
 ![Histogram of son heights.](../fig/03-conditional-probabilities-expectations-height_hist-1.png)
 
@@ -65,15 +66,16 @@ Let's imagine that we are given more information. We are told that the father of
 
 
 
-```r
+~~~
 mypar(1,2)
 plot(x,y,xlab="Father's height in inches",ylab="Son's height in inches",
      main=paste("correlation =",signif(cor(x,y),2)))
 abline(v=c(-0.35,0.35)+71,col="red")
 hist(y[x==71],xlab="Heights",nc=8,main="",xlim=range(y))
-```
+~~~
+{: .language-r}
 
-![Son versus father height (left) with the red lines denoting the stratum defined by conditioning on fathers being 71 inches tall. Conditional distribution: son height distribution of stratum defined by 71 inch fathers.](fig/03-conditional-probabilities-expectations-conditional_distribution-1.png)
+<img src="../fig/rmd-03-conditional_distribution-1.png" alt="Son versus father height (left) with the red lines denoting the stratum defined by conditioning on fathers being 71 inches tall. Conditional distribution: son height distribution of stratum defined by 71 inch fathers." width="756" style="display: block; margin: auto;" />
 
 ![Son versus father height (left) with the red lines denoting the stratum defined by conditioning on fathers being 71 inches tall. Conditional distribution: son height distribution of stratum defined by 71 inch fathers.](../fig/03-conditional-probabilities-expectations-conditional_distribution-1.png)
 
@@ -92,7 +94,7 @@ $$
 and if we estimate these five parameters from the sample, we get the regression line:
 
 
-```r
+~~~
 mypar(1,2)
 plot(x,y,xlab="Father's height in inches",ylab="Son's height in inches",
      main=paste("correlation =",signif(cor(x,y),2)))
@@ -103,9 +105,10 @@ abline(fit,col=1)
 
 hist(y[x==71],xlab="Heights",nc=8,main="",xlim=range(y))
 abline(v = fit$coef[1] + fit$coef[2]*71, col=1)
-```
+~~~
+{: .language-r}
 
-![Son versus father height showing predicted heights based on regression line (left). Conditional distribution with vertical line representing regression prediction.](fig/03-conditional-probabilities-expectations-regression-1.png)
+<img src="../fig/rmd-03-regression-1.png" alt="Son versus father height showing predicted heights based on regression line (left). Conditional distribution with vertical line representing regression prediction." width="756" style="display: block; margin: auto;" />
 
 ![Son versus father height showing predicted heights based on regression line (left). Conditional distribution with vertical line representing regression prediction.](../fig/03-conditional-probabilities-expectations-regression-1.png)
 
@@ -116,14 +119,15 @@ In this particular case, the regression line provides an optimal prediction func
 > are 0s and 1s, probabilities and expectations are the same thing. We can do 
 > the math, but here is some R code:
 > 
-> ```r
+> ~~~
 > n = 1000
 > y = rbinom(n, 1, 0.25) ## proportion of ones Pr(Y)
 > sum(y==1)/length(y) ## expectation of Y mean(y)
-> ```
+> ~~~
+> {: .language-r}
 > 1. Generate some random data to imitate heights for men (0) and women (1):
 > 
-> ```r
+> ~~~
 > n = 10000
 > set.seed(1)
 > men = rnorm(n, 176, 7) # height in centimeters 
@@ -133,15 +137,17 @@ In this particular case, the regression line provides an optimal prediction func
 > ind = sample(seq(along=y))
 > y = y[ind]
 > x = x[ind]
-> ```
+> ~~~
+> {: .language-r}
 > 2. Using the data generated above, what is the E(Y | X = 176)?
 > 
 > > ## Solution
 > >
 > > 
-> > ```r
+> > ~~~
 > > mean(y[x==176])
-> > ```
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
 > 3. Now make a plot of E(Y|X=x) for `x=seq(160, 178)` using the data generated
@@ -153,7 +159,7 @@ In this particular case, the regression line provides an optimal prediction func
 > > ## Solution
 > >
 > > 
-> > ```r
+> > ~~~
 > > mypar()
 > > plot(x,y)
 > > x_list <- seq(160,178)
@@ -164,6 +170,7 @@ In this particular case, the regression line provides an optimal prediction func
 > > ind <- max(which(res > 0.5))
 > > x_list[ind] # answer
 > > mean(y[x==168])
-> > ```
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}

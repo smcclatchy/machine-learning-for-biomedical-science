@@ -54,7 +54,7 @@ shown). Here is the plot of $f(x_1,x_2)$ with red representing values close to
 1, blue representing values close to 0, and yellow values in between.
 
 
-```r
+~~~
 library(rafalib)
 library(RColorBrewer)
 hmcol <- colorRampPalette(rev(brewer.pal(11,  "Spectral")))(100)
@@ -117,7 +117,8 @@ colshat <- hmcol[floor(bayesrule * 100) + 1]
 mypar()
 plot(x, type="n", xlab="X1", ylab="X2", xlim=XLIM, ylim=YLIM)
 points(newx, col=colshat, pch=16, cex=0.35)
-```
+~~~
+{: .language-r}
 
 ![Probability of Y=1 as a function of X1 and X2. Red is close to 1, yellow close to 0.5, and blue close to 0.](../fig/05-class-prediction-conditional_prob-1.png)
 
@@ -126,7 +127,7 @@ we see the boundary region that denotes the boundary in which we switch from
 predicting 0 to 1.
 
 
-```r
+~~~
 mypar()
 
 colshat[bayesrule>=0.5] <- mycols[2]
@@ -136,7 +137,8 @@ plot(x,type="n",xlab="X1",ylab="X2",xlim=XLIM,ylim=YLIM)
 points(newx,col=colshat,pch=16,cex=0.35)
 contour(tmpx,tmpy,matrix(round(bayesrule),GS,GS),levels=c(1,2),
         add=TRUE,drawlabels=FALSE)
-```
+~~~
+{: .language-r}
 
 ![Bayes rule. The line divides part of the space for which probability is larger than 0.5 (red) and lower than 0.5 (blue).](../fig/05-class-prediction-bayes_rule-1.png)
 
@@ -151,7 +153,7 @@ In the code (not shown) for the first plot in this chapter, we created a test
 and a training set. We plot them here:
 
 
-```r
+~~~
 #x, test, cols, and coltest were created in code that was not shown
 #x is training x1 and x2, test is test x1 and x2
 #cols (0=blue, 1=red) are training observations
@@ -159,7 +161,8 @@ and a training set. We plot them here:
 mypar(1, 2)
 plot(x, pch=21, bg=cols, xlab="X1", ylab="X2", xlim=XLIM, ylim=YLIM)
 plot(test, pch=21, bg=colstest, xlab="X1", ylab="X2", xlim=XLIM, ylim=YLIM)
-```
+~~~
+{: .language-r}
 
 ![Training data (left) and test data (right).](../fig/05-class-prediction-test_train-1.png)
 
@@ -176,40 +179,62 @@ A first naive approach to this ML problem is to fit a
 **two variable linear regression model**:
 
 
-```r
+~~~
 ##x and y were created in the code (not shown) for the first plot
 #y is outcome for the training set
 X1 <- x[,1] ##these are the covariates
-```
+~~~
+{: .language-r}
 
-```
-## Error in eval(expr, envir, enclos): object 'x' not found
-```
 
-```r
+
+~~~
+Error in eval(expr, envir, enclos): object 'x' not found
+~~~
+{: .error}
+
+
+
+~~~
 X2 <- x[,2] 
-```
+~~~
+{: .language-r}
 
-```
-## Error in eval(expr, envir, enclos): object 'x' not found
-```
 
-```r
+
+~~~
+Error in eval(expr, envir, enclos): object 'x' not found
+~~~
+{: .error}
+
+
+
+~~~
 fit1 <- lm(y~X1+X2)
-```
+~~~
+{: .language-r}
 
-```
-## Error in eval(predvars, data, env): object 'y' not found
-```
 
-```r
+
+~~~
+Error in eval(predvars, data, env): object 'y' not found
+~~~
+{: .error}
+
+
+
+~~~
 ## get summary of a fitted model
 summary(fit1)
-```
+~~~
+{: .language-r}
 
-```
-## Error in summary(fit1): object 'fit1' not found
-```
+
+
+~~~
+Error in summary(fit1): object 'fit1' not found
+~~~
+{: .error}
 
 Once we the have fitted values, we can estimate $f(x_1,x_2)$ with 
 $\hat{f}(x_1,x_2)=\hat{\beta}_0 + \hat{\beta}_1x_1 +\hat{\beta}_2 x_2$. To 
@@ -218,42 +243,62 @@ We now examine the error rates in the test and training sets and also plot the
 boundary region:
 
 
-```r
+~~~
 ##prediction on train
 yhat <- predict(fit1)
-```
+~~~
+{: .language-r}
 
-```
-## Error in predict(fit1): object 'fit1' not found
-```
 
-```r
+
+~~~
+Error in predict(fit1): object 'fit1' not found
+~~~
+{: .error}
+
+
+
+~~~
 yhat <- as.numeric(yhat>0.5)
-```
+~~~
+{: .language-r}
 
-```
-## Error in eval(expr, envir, enclos): object 'yhat' not found
-```
 
-```r
+
+~~~
+Error in eval(expr, envir, enclos): object 'yhat' not found
+~~~
+{: .error}
+
+
+
+~~~
 cat("Linear regression prediction error in train:",1-mean(yhat==y),"\n")
-```
+~~~
+{: .language-r}
 
-```
-## Error in mean(yhat == y): object 'yhat' not found
-```
+
+
+~~~
+Error in mean(yhat == y): object 'yhat' not found
+~~~
+{: .error}
 
 We can quickly obtain predicted values for any set of values using the `predict` 
 function:
 
 
-```r
+~~~
 yhat <- predict(fit1,newdata=data.frame(X1=newx[,1],X2=newx[,2]))
-```
+~~~
+{: .language-r}
 
-```
-## Error in predict(fit1, newdata = data.frame(X1 = newx[, 1], X2 = newx[, : object 'fit1' not found
-```
+
+
+~~~
+Error in predict(fit1, newdata = data.frame(X1 = newx[, 1], X2 = newx[, : object 'fit1' not found
+~~~
+{: .error}
 
 Now we can create a plot showing where we predict 1s and where we predict 0s, as 
 well as the boundary. We can also use the `predict` function to obtain predicted 
@@ -261,7 +306,7 @@ values for our test set.
 **Note that nowhere do we fit the model on the test set:** 
 
 
-```r
+~~~
 colshat <- yhat
 colshat[yhat>=0.5] <- mycols[2]
 colshat[yhat<0.5] <- mycols[1]
@@ -279,7 +324,8 @@ points(newx,col=colshat,pch=16,cex=0.35)
 
 ##test was created in the code (not shown) for the first plot
 points(test,bg=cols,pch=21)
-```
+~~~
+{: .language-r}
 
 ![We estimate the probability of 1 with a linear regression model with X1 and X2 as predictors. The resulting prediction map is divided into parts that are larger than 0.5 (red) and lower than 0.5 (blue).](../fig/05-class-prediction-regression_prediction-1.png)
 
@@ -305,16 +351,22 @@ gave us an estimate of a curve. We can now control flexibility through $k$. Here
 we compare $k=1$ and $k=100$.
 
 
-```r
+~~~
 library(class)
 mypar(2,2)
-```
+~~~
+{: .language-r}
 
-```
-## Error in mypar(2, 2): could not find function "mypar"
-```
 
-```r
+
+~~~
+Error in mypar(2, 2): could not find function "mypar"
+~~~
+{: .error}
+
+
+
+~~~
 for(k in c(1,100)){
   ##predict on train
   yhat <- knn(x,x,y,k=k)
@@ -323,27 +375,37 @@ for(k in c(1,100)){
   yhat <- knn(x,test,y,k=k)
   cat("KNN prediction error in test:",1-mean((as.numeric(yhat)-1)==ytest),"\n")
 }
-```
+~~~
+{: .language-r}
 
-```
-## Error in as.matrix(train): object 'x' not found
-```
+
+
+~~~
+Error in as.matrix(train): object 'x' not found
+~~~
+{: .error}
 
 To visualize why we make no errors in the train set and many errors in the test 
 set when $k=1$ and obtain more stable results from $k=100$, we show the 
 prediction regions (code not shown):
 
 
-```r
+~~~
 library(class)
 mypar(2,2)
-```
+~~~
+{: .language-r}
 
-```
-## Error in mypar(2, 2): could not find function "mypar"
-```
 
-```r
+
+~~~
+Error in mypar(2, 2): could not find function "mypar"
+~~~
+{: .error}
+
+
+
+~~~
 for(k in c(1,100)){
   ##predict on train
   yhat <- knn(x,x,y,k=k)
@@ -364,11 +426,15 @@ for(k in c(1,100)){
   points(test,bg=cols,pch=21)
   title(paste("Test: KNN (",k,")",sep=""))
 }
-```
+~~~
+{: .language-r}
 
-```
-## Error in as.matrix(train): object 'x' not found
-```
+
+
+~~~
+Error in as.matrix(train): object 'x' not found
+~~~
+{: .error}
 
 ![Prediction regions obtained with kNN for k=1 (top) and k=200 (bottom). We show both train (left) and test data (right).](../fig/05-class-prediction-knn-1.png)
 
@@ -390,32 +456,50 @@ $\mbox{E}(Y \mid X_1=x1,X_2=x_2)$ referred to as _Bayes Rule_.
 We start by computing the error rates...
 
 
-```r
+~~~
 ###Bayes Rule
 yhat <- apply(test,1,p)
-```
+~~~
+{: .language-r}
 
-```
-## Error in match.fun(FUN): object 'p' not found
-```
 
-```r
+
+~~~
+Error in match.fun(FUN): object 'p' not found
+~~~
+{: .error}
+
+
+
+~~~
 cat("Bayes rule prediction error in train",1-mean(round(yhat)==y),"\n")
-```
+~~~
+{: .language-r}
 
-```
-## Error in mean(round(yhat) == y): object 'yhat' not found
-```
 
-```r
+
+~~~
+Error in mean(round(yhat) == y): object 'yhat' not found
+~~~
+{: .error}
+
+
+
+~~~
 bayes.error=1-mean(round(yhat)==y)
-```
+~~~
+{: .language-r}
 
-```
-## Error in mean(round(yhat) == y): object 'yhat' not found
-```
 
-```r
+
+~~~
+Error in mean(round(yhat) == y): object 'yhat' not found
+~~~
+{: .error}
+
+
+
+~~~
 train.error <- rep(0,16)
 test.error <- rep(0,16)
 for(k in seq(along=train.error)){
@@ -426,42 +510,59 @@ for(k in seq(along=train.error)){
   yhat <- knn(x,test,y,k=2^(k/2))
   test.error[k] <- 1-mean((as.numeric(yhat)-1)==y)
 }
-```
+~~~
+{: .language-r}
 
-```
-## Error in as.matrix(train): object 'x' not found
-```
+
+
+~~~
+Error in as.matrix(train): object 'x' not found
+~~~
+{: .error}
 
 ... and then plot the error rates against values of $k$. We also show the Bayes 
 rules error rate as a horizontal line.
 
 
-```r
+~~~
 ks <- 2^(seq(along=train.error)/2)
 mypar()
-```
+~~~
+{: .language-r}
 
-```
-## Error in mypar(): could not find function "mypar"
-```
 
-```r
-plot(ks,train.error,type="n",xlab="K",ylab="Prediction Error",log="x",
-     ylim=range(c(test.error,train.error)))
-lines(ks,train.error,type="b",col=4,lty=2,lwd=2)
-lines(ks,test.error,type="b",col=5,lty=3,lwd=2)
-abline(h=bayes.error,col=6)
-```
 
-```
-## Error in int_abline(a = a, b = b, h = h, v = v, untf = untf, ...): object 'bayes.error' not found
-```
+~~~
+Error in mypar(): could not find function "mypar"
+~~~
+{: .error}
 
-```r
-legend("bottomright",c("Train","Test","Bayes"),col=c(4,5,6),lty=c(2,3,1),box.lwd=0)
-```
 
-![Prediction error in train (pink) and test (green) versus number of neighbors. The yellow line represents what one obtains with Bayes Rule.](fig/05-class-prediction-bayes_rule2-1.png)
+
+~~~
+plot(ks, train.error, type="n", xlab="K", ylab="Prediction Error", log="x",
+     ylim=range(c(test.error, train.error)))
+lines(ks, train.error, type="b", col=4, lty=2, lwd=2)
+lines(ks, test.error, type="b", col=5, lty=3, lwd=2)
+abline(h=bayes.error, col=6)
+~~~
+{: .language-r}
+
+
+
+~~~
+Error in int_abline(a = a, b = b, h = h, v = v, untf = untf, ...): object 'bayes.error' not found
+~~~
+{: .error}
+
+
+
+~~~
+legend("bottomright", c("Train","Test","Bayes"), col=c(4,5,6), lty=c(2,3,1), box.lwd=0)
+~~~
+{: .language-r}
+
+<img src="../fig/rmd-05-bayes_rule2-1.png" alt="Prediction error in train (pink) and test (green) versus number of neighbors. The yellow line represents what one obtains with Bayes Rule." width="612" style="display: block; margin: auto;" />
 
 ![Prediction error in train (pink) and test (green) versus number of neighbors. The yellow line represents what one obtains with Bayes Rule.](../fig/05-class-prediction-bayes_rule2-1.png)
 

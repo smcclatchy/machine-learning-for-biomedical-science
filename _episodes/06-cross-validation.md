@@ -25,58 +25,74 @@ If we choose a machine learning algorithm with a tunable parameter, we have to c
 Let's start by loading the tissue gene expression dataset:
 
 
-```r
+~~~
 library(tissuesGeneExpression)
 data(tissuesGeneExpression)
-```
+~~~
+{: .language-r}
 
 For illustration purposes, we will drop one of the tissues which doesn't have many samples:
 
 
-```r
+~~~
 table(tissue)
-```
+~~~
+{: .language-r}
 
-```
-## tissue
-##  cerebellum       colon endometrium hippocampus      kidney       liver 
-##          38          34          15          31          39          26 
-##    placenta 
-##           6
-```
 
-```r
+
+~~~
+tissue
+ cerebellum       colon endometrium hippocampus      kidney       liver 
+         38          34          15          31          39          26 
+   placenta 
+          6 
+~~~
+{: .output}
+
+
+
+~~~
 ind <- which(tissue != "placenta")
 y <- tissue[ind]
 X <- t( e[,ind] )
-```
+~~~
+{: .language-r}
 
 This tissue will not form part of our example.
 
 Now let's try out k-nearest neighbors for classification, using $k=5$. What is our average error in predicting the tissue in the training set, when we've used the same data for training and for testing?
 
 
-```r
+~~~
 library(class)
 pred <- knn(train =  X, test = X, cl=y, k=5)
 mean(y != pred)
-```
+~~~
+{: .language-r}
 
-```
-## [1] 0
-```
+
+
+~~~
+[1] 0
+~~~
+{: .output}
 
 We have no errors in prediction in the training set with $k=5$. What if we use $k=1$?
 
 
-```r
+~~~
 pred <- knn(train=X, test=X, cl=y, k=1)
 mean(y != pred)
-```
+~~~
+{: .language-r}
 
-```
-## [1] 0
-```
+
+
+~~~
+[1] 0
+~~~
+{: .output}
 
 Trying to classify the same observations as we use to *train* the model can be very misleading. In fact, for k-nearest neighbors, using k=1 will always give 0 classification error in the training set, because we use the single observation to classify itself. The reliable way to get a sense of the performance of an algorithm is to make it give a prediction for a sample it has never seen. Similarly, if we want to know what the best value for a tunable parameter is, we need to see how different values of the parameter perform on samples, which are not in the training data.
 
@@ -85,141 +101,174 @@ Cross-validation is a widely-used method in machine learning, which solves this 
 We will use the `createFolds` function from the `caret` package to make 5 folds of our gene expression data, which are balanced over the tissues. Don't be confused by the fact that the `createFolds` function uses the same letter 'k' as the 'k' in k-nearest neighbors. These 'k' are totally unrelated. The caret function `createFolds` is asking for how many folds to create, the $N$ from above. The 'k' in the `knn` function is for how many closest observations to use in classifying a new sample. Here we will create 10 folds:
 
 
-```r
+~~~
 library(caret)
 set.seed(1)
 idx <- createFolds(y, k=10)
 sapply(idx, length)
-```
+~~~
+{: .language-r}
 
-```
-## Fold01 Fold02 Fold03 Fold04 Fold05 Fold06 Fold07 Fold08 Fold09 Fold10 
-##     19     19     18     18     19     18     20     16     16     20
-```
+
+
+~~~
+Fold01 Fold02 Fold03 Fold04 Fold05 Fold06 Fold07 Fold08 Fold09 Fold10 
+    19     19     18     18     19     18     20     16     16     20 
+~~~
+{: .output}
 
 The folds are returned as a list of numeric indices. The first fold of data is therefore:
 
 
-```r
+~~~
 y[idx[[1]]] ##the labels
-```
+~~~
+{: .language-r}
 
-```
-##  [1] "kidney"      "hippocampus" "hippocampus" "hippocampus" "cerebellum" 
-##  [6] "cerebellum"  "cerebellum"  "kidney"      "kidney"      "kidney"     
-## [11] "colon"       "colon"       "colon"       "liver"       "endometrium"
-## [16] "endometrium" "liver"       "liver"       "cerebellum"
-```
 
-```r
+
+~~~
+ [1] "kidney"      "hippocampus" "hippocampus" "hippocampus" "cerebellum" 
+ [6] "cerebellum"  "cerebellum"  "kidney"      "kidney"      "kidney"     
+[11] "colon"       "colon"       "colon"       "liver"       "endometrium"
+[16] "endometrium" "liver"       "liver"       "cerebellum" 
+~~~
+{: .output}
+
+
+
+~~~
 head( X[idx[[1]], 1:3] ) ##the genes (only showing the first 3 genes...)
-```
+~~~
+{: .language-r}
 
-```
-##                 1007_s_at  1053_at   117_at
-## GSM12105.CEL.gz  9.913031 6.337478 7.983850
-## GSM21209.cel.gz 11.667431 5.785190 7.666343
-## GSM21215.cel.gz 10.361340 5.663634 7.328729
-## GSM21218.cel.gz 10.757734 5.984170 8.525524
-## GSM87066.cel.gz  9.746007 5.886079 7.459517
-## GSM87085.cel.gz  9.864295 5.753874 7.712646
-```
+
+
+~~~
+                1007_s_at  1053_at   117_at
+GSM12105.CEL.gz  9.913031 6.337478 7.983850
+GSM21209.cel.gz 11.667431 5.785190 7.666343
+GSM21215.cel.gz 10.361340 5.663634 7.328729
+GSM21218.cel.gz 10.757734 5.984170 8.525524
+GSM87066.cel.gz  9.746007 5.886079 7.459517
+GSM87085.cel.gz  9.864295 5.753874 7.712646
+~~~
+{: .output}
 
 We can see that, in fact, the tissues are fairly equally represented across the 10 folds:
 
 
-```r
+~~~
 sapply(idx, function(i) table(y[i]))
-```
+~~~
+{: .language-r}
 
-```
-##             Fold01 Fold02 Fold03 Fold04 Fold05 Fold06 Fold07 Fold08 Fold09
-## cerebellum       4      4      4      4      4      3      4      3      4
-## colon            3      4      4      3      3      3      4      3      3
-## endometrium      2      1      1      1      2      2      2      1      1
-## hippocampus      3      3      3      3      3      3      3      3      3
-## kidney           4      4      4      4      4      4      4      4      3
-## liver            3      3      2      3      3      3      3      2      2
-##             Fold10
-## cerebellum       4
-## colon            4
-## endometrium      2
-## hippocampus      4
-## kidney           4
-## liver            2
-```
+
+
+~~~
+            Fold01 Fold02 Fold03 Fold04 Fold05 Fold06 Fold07 Fold08 Fold09
+cerebellum       4      4      4      4      4      3      4      3      4
+colon            3      4      4      3      3      3      4      3      3
+endometrium      2      1      1      1      2      2      2      1      1
+hippocampus      3      3      3      3      3      3      3      3      3
+kidney           4      4      4      4      4      4      4      4      3
+liver            3      3      2      3      3      3      3      2      2
+            Fold10
+cerebellum       4
+colon            4
+endometrium      2
+hippocampus      4
+kidney           4
+liver            2
+~~~
+{: .output}
 
 Because tissues have very different gene expression profiles, predicting tissue with all genes will be very easy. For illustration purposes we will try to predict tissue type with just two dimensional data. We will reduce the dimension of our data using `cmdscale`:
 
 
-```r
+~~~
 library(rafalib)
 mypar()
 Xsmall <- cmdscale(dist(X))
 plot(Xsmall,col=as.fumeric(y))
 legend("topleft",levels(factor(y)),fill=seq_along(levels(factor(y))))
-```
+~~~
+{: .language-r}
 
-![First two PCs of the tissue gene expression data with color representing tissue. We use these two PCs as our two predictors throughout.](fig/06-cross-validation-mds-1.png)
+<img src="../fig/rmd-06-mds-1.png" alt="First two PCs of the tissue gene expression data with color representing tissue. We use these two PCs as our two predictors throughout." width="612" style="display: block; margin: auto;" />
 
 ![First two PCs of the tissue gene expression data with color representing tissue. We use these two PCs as our two predictors throughout.](../fig/06-cross-validation-mds-1.png)
 
 Now we can try out the k-nearest neighbors method on a single fold. We provide the `knn` function with all the samples in `Xsmall` *except* those which are in the first fold. We remove these samples using the code `-idx[[1]]` inside the square brackets. We then use those samples in the test set. The `cl` argument is for the true classifications or labels (here, tissue) of the training data. We use 5 observations to classify in our k-nearest neighbor algorithm:
 
 
-```r
+~~~
 pred <- knn(train=Xsmall[ -idx[[1]] , ], test=Xsmall[ idx[[1]], ], cl=y[ -idx[[1]] ], k=5)
 table(true=y[ idx[[1]] ], pred)
-```
+~~~
+{: .language-r}
 
-```
-##              pred
-## true          cerebellum colon endometrium hippocampus kidney liver
-##   cerebellum           4     0           0           0      0     0
-##   colon                0     2           0           0      1     0
-##   endometrium          0     0           2           0      0     0
-##   hippocampus          2     0           0           1      0     0
-##   kidney               0     0           0           0      4     0
-##   liver                0     0           0           0      0     3
-```
 
-```r
+
+~~~
+             pred
+true          cerebellum colon endometrium hippocampus kidney liver
+  cerebellum           4     0           0           0      0     0
+  colon                0     2           0           0      1     0
+  endometrium          0     0           2           0      0     0
+  hippocampus          2     0           0           1      0     0
+  kidney               0     0           0           0      4     0
+  liver                0     0           0           0      0     3
+~~~
+{: .output}
+
+
+
+~~~
 mean(y[ idx[[1]] ] != pred)
-```
+~~~
+{: .language-r}
 
-```
-## [1] 0.1578947
-```
+
+
+~~~
+[1] 0.1578947
+~~~
+{: .output}
 
 Now we have some misclassifications. How well do we do for the rest of the folds?
 
 
-```r
+~~~
 for (i in 1:10) {
   pred <- knn(train=Xsmall[ -idx[[i]] , ], test=Xsmall[ idx[[i]], ], cl=y[ -idx[[i]] ], k=5)
   print(paste0(i,") error rate: ", round(mean(y[ idx[[i]] ] != pred),3)))
 }
-```
+~~~
+{: .language-r}
 
-```
-## [1] "1) error rate: 0.158"
-## [1] "2) error rate: 0.158"
-## [1] "3) error rate: 0.278"
-## [1] "4) error rate: 0.167"
-## [1] "5) error rate: 0.158"
-## [1] "6) error rate: 0.167"
-## [1] "7) error rate: 0.25"
-## [1] "8) error rate: 0.188"
-## [1] "9) error rate: 0.062"
-## [1] "10) error rate: 0.1"
-```
+
+
+~~~
+[1] "1) error rate: 0.158"
+[1] "2) error rate: 0.158"
+[1] "3) error rate: 0.278"
+[1] "4) error rate: 0.167"
+[1] "5) error rate: 0.158"
+[1] "6) error rate: 0.167"
+[1] "7) error rate: 0.25"
+[1] "8) error rate: 0.188"
+[1] "9) error rate: 0.062"
+[1] "10) error rate: 0.1"
+~~~
+{: .output}
 
 So we can see there is some variation for each fold, with error rates hovering around 0.1-0.3. But is `k=5` the best setting for the k parameter? In order to explore the best setting for k, we need to create an outer loop, where we try different values for k, and then calculate the average test set error across all the folds.
 
 We will try out each value of k from 1 to 12. Instead of using two `for` loops, we will use `sapply`:
 
 
-```r
+~~~
 set.seed(1)
 ks <- 1:12
 res <- sapply(ks, function(k) {
@@ -236,28 +285,34 @@ res <- sapply(ks, function(k) {
   ##average over the 10 folds
   mean(res.k)
 })
-```
+~~~
+{: .language-r}
 
 Now for each value of k, we have an associated test set error rate from the cross-validation procedure.
 
 
-```r
+~~~
 res
-```
+~~~
+{: .language-r}
 
-```
-##  [1] 0.1882164 0.1692032 0.1694664 0.1639108 0.1511184 0.1586184 0.1589108
-##  [8] 0.1865058 0.1880482 0.1714108 0.1759795 0.1744664
-```
+
+
+~~~
+ [1] 0.1882164 0.1692032 0.1694664 0.1639108 0.1511184 0.1586184 0.1589108
+ [8] 0.1865058 0.1880482 0.1714108 0.1759795 0.1744664
+~~~
+{: .output}
 
 We can then plot the error rate for each value of k, which helps us to see in what region there might be a minimal error rate:
 
 
-```r
+~~~
 plot(ks, res, type="o",ylab="misclassification error")
-```
+~~~
+{: .language-r}
 
-![Misclassification error versus number of neighbors.](fig/06-cross-validation-misclassification_error-1.png)
+<img src="../fig/rmd-06-misclassification_error-1.png" alt="Misclassification error versus number of neighbors." width="612" style="display: block; margin: auto;" />
 
 ![Misclassification error versus number of neighbors.](../fig/06-cross-validation-misclassification_error-1.png)
 
@@ -266,7 +321,7 @@ Remember, because the training set is a random sample and because our fold-gener
 Finally, to show that gene expression can perfectly predict tissue, we use 5 dimensions instead of 2, which results in perfect prediction:
 
 
-```r
+~~~
 Xsmall <- cmdscale(dist(X),k=5)
 set.seed(1)
 ks <- 1:12
@@ -280,9 +335,10 @@ res <- sapply(ks, function(k) {
   mean(res.k)
 })
 plot(ks, res, type="o",ylim=c(0,0.20),ylab="misclassification error")
-```
+~~~
+{: .language-r}
 
-![Misclassification error versus number of neighbors when we use 5 dimensions instead of 2.](fig/06-cross-validation-misclassification_error2-1.png)
+<img src="../fig/rmd-06-misclassification_error2-1.png" alt="Misclassification error versus number of neighbors when we use 5 dimensions instead of 2." width="612" style="display: block; margin: auto;" />
 
 ![Misclassification error versus number of neighbors when we use 5 dimensions instead of 2.](../fig/06-cross-validation-misclassification_error2-1.png)
 
@@ -299,31 +355,34 @@ and applying this to the test set.
 > Load the following dataset:                                            
 > 
 > 
-> ```r
+> ~~~
 > library(GSE5859Subset)
 > data(GSE5859Subset)
-> ```
+> ~~~
+> {: .language-r}
 > And define the outcome and predictors. To make the problem more difficult, we 
 > will only consider autosomal genes:
 > 
-> ```r
+> ~~~
 > y = factor(sampleInfo$group)
 > X = t(geneExpression)
 > out = which(geneAnnotation$CHR %in% c("chrX","chrY"))
 > X = X[,-out]
-> ```
+> ~~~
+> {: .language-r}
 > 1. Use the `createFold` function in the `caret` package, set the seed to 1 
 > `set.seed(1)` and create 10 folds of `y`. What is the 2nd entry in the fold 3?
 > 
 > > ## Solution
 > >
 > > 
-> > ```r
+> > ~~~
 > > library(caret)
 > > set.seed(1)
 > > idx <- createFolds(y, k = 10)
 > > idx[[3]][2]
-> > ```
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
 > 2. We are going to use kNN. We are going to consider a smaller set of 
@@ -338,7 +397,7 @@ and applying this to the test set.
 > > ## Solution
 > >
 > > 
-> > ```r
+> > ~~~
 > > m <- 8 # number of genes
 > > pvals <- rowttests(t(X[-idx[[2]],]),y[-idx[[2]]])$p.value
 > > ind <- order(pvals)[1:m]
@@ -346,7 +405,8 @@ and applying this to the test set.
 > >             test = X[idx[[2]],ind],
 > >             cl = y[-idx[[2]]], k = 5)
 > > sum(pred != y[idx[[2]]])
-> > ```
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
 > 3. Now run through all 5 folds. What is our error rate?
@@ -354,7 +414,7 @@ and applying this to the test set.
 > > ## Solution
 > >
 > > 
-> > ```r
+> > ~~~
 > > n_fold <- length(idx)
 > > res <- vector('double', n_fold)
 > > m <- 8
@@ -367,25 +427,27 @@ and applying this to the test set.
 > >   res[[i]] <- sum(pred != y[idx[[i]]])
 > > }
 > > sum(res)/length(y)
-> > ```
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
 > 4. Now we are going to select the best values of k and m. Use the expand grid 
 > function to try out the following values:
 > 
 > 
-> ```r
+> ~~~
 > ms = 2^c(1:11)
 > ks = seq(1,9,2)
 > params = expand.grid(k=ks,m=ms)
-> ```
+> ~~~
+> {: .language-r}
 > 
 > Now use apply or a for-loop to obtain error rates for each of these pairs of 
 > parameters. Which pair of parameters minimizes the error rate?
 > > ## Solution
 > >
 > > 
-> > ```r
+> > ~~~
 > > ms = 2^c(1:11)
 > > ks = seq(1,9,2)
 > > params = expand.grid(k=ks, m=ms)
@@ -405,7 +467,8 @@ and applying this to the test set.
 > > ind <- which(error_rate_avg == min(error_rate_avg))
 > > params[ind,] # answer
 > > min(error_rate_avg) # minimum error rate
-> > ```
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
 > 5. Repeat exercise 4, but now perform the t-test filtering before the cross
@@ -414,7 +477,7 @@ and applying this to the test set.
 > > ## Solution
 > >
 > > 
-> > ```r
+> > ~~~
 > > ms = 2^c(1:11)
 > > ks = seq(1,9,2)
 > > params = expand.grid(k=ks, m=ms)
@@ -433,7 +496,8 @@ and applying this to the test set.
 > > }
 > > min(error_rate_avg) # minimum error rate
 > > mean(error_rate_avg) # mean error rate
-> > ```
+> > ~~~
+> > {: .language-r}
 > > 
 > > The error rate is much lower than the one in **Exercise 4** because we did 
 > > not filter out p values from the test data in this case. This is not a 
@@ -452,7 +516,7 @@ and applying this to the test set.
 > > ## Solution
 > >
 > > 
-> > ```r
+> > ~~~
 > > ms = 2^c(1:11)
 > > ks = seq(1,9,2)
 > > params = expand.grid(k=ks, m=ms)
@@ -471,7 +535,8 @@ and applying this to the test set.
 > > }
 > > min(error_rate_avg) # minimum error rate
 > > mean(error_rate_avg) # mean error rate
-> > ```
+> > ~~~
+> > {: .language-r}
 > > 
 > {: .solution}
 {: .challenge}

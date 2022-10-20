@@ -22,17 +22,19 @@ math: yes
 We will demonstrate the concepts and code needed to perform clustering analysis with the tissue gene expression data:
 
 
-```r
+~~~
 library(tissuesGeneExpression)
 data(tissuesGeneExpression)
-```
+~~~
+{: .language-r}
 
 To illustrate the main application of clustering in the life sciences, let's pretend that we don't know these are different tissues and are interested in clustering. The first step is to compute the distance between each sample:
 
 
-```r
+~~~
 d <- dist( t(e) )
-```
+~~~
+{: .language-r}
 
 <a name="hierarchical"></a>
 
@@ -43,92 +45,109 @@ With the distance between each pair of samples computed, we need clustering algo
 We can perform hierarchical clustering based on the distances defined above using the `hclust` function. This function returns an `hclust` object that describes the groupings that were created using the algorithm described above. The `plot` method represents these relationships with a tree or dendrogram: 
 
 
-```r
+~~~
 library(rafalib)
 mypar()
 hc <- hclust(d)
 hc
-```
+~~~
+{: .language-r}
 
-```
-## 
-## Call:
-## hclust(d = d)
-## 
-## Cluster method   : complete 
-## Distance         : euclidean 
-## Number of objects: 189
-```
 
-```r
+
+~~~
+
+Call:
+hclust(d = d)
+
+Cluster method   : complete 
+Distance         : euclidean 
+Number of objects: 189 
+~~~
+{: .output}
+
+
+
+~~~
 plot(hc,labels=tissue,cex=0.5)
-```
+~~~
+{: .language-r}
 
-![Dendrogram showing hierarchical clustering of tissue gene expression data.](fig/02-clustering-dendrogram-1.png)
+<img src="../fig/rmd-02-dendrogram-1.png" alt="Dendrogram showing hierarchical clustering of tissue gene expression data." width="756" style="display: block; margin: auto;" />
 
 ![Dendrogram showing hierarchical clustering of tissue gene expression data.](../fig/02-clustering-dendrogram-1.png)
 
 Does this technique "discover" the clusters defined by the different tissues? In this plot, it is not easy to see the different tissues so we add colors by using the `myplclust` function from the `rafalib` package. 
  
 
-```r
+~~~
 myplclust(hc, labels=tissue, lab.col=as.fumeric(tissue), cex=0.5)
-```
+~~~
+{: .language-r}
 
-![Dendrogram showing hierarchical clustering of tissue gene expression data with colors denoting tissues.](fig/02-clustering-color_dendrogram-1.png)
+<img src="../fig/rmd-02-color_dendrogram-1.png" alt="Dendrogram showing hierarchical clustering of tissue gene expression data with colors denoting tissues." width="756" style="display: block; margin: auto;" />
 
 ![Dendrogram showing hierarchical clustering of tissue gene expression data with colors denoting tissues.](../fig/02-clustering-color_dendrogram-1.png)
 
 Visually, it does seem as if the clustering technique has discovered the tissues. However,  hierarchical clustering does not define specific clusters, but rather defines the dendrogram above. From the dendrogram we can decipher the distance between any two groups by looking at the height at which the two groups split into two. To define clusters, we need to "cut the tree" at some distance and group all samples that are within that distance into groups below. To visualize this, we draw a horizontal line at the height we wish to cut and this defines that line. We use 120 as an example:
 
 
-```r
+~~~
 myplclust(hc, labels=tissue, lab.col=as.fumeric(tissue),cex=0.5)
 abline(h=120)
-```
+~~~
+{: .language-r}
 
-![Dendrogram showing hierarchical clustering of tissue gene expression data with colors denoting tissues. Horizontal line defines actual clusters.](fig/02-clustering-color_dendrogram2-1.png)
+<img src="../fig/rmd-02-color_dendrogram2-1.png" alt="Dendrogram showing hierarchical clustering of tissue gene expression data with colors denoting tissues. Horizontal line defines actual clusters." width="756" style="display: block; margin: auto;" />
 
 ![Dendrogram showing hierarchical clustering of tissue gene expression data with colors denoting tissues. Horizontal line defines actual clusters.](../fig/02-clustering-color_dendrogram2-1.png)
 If we use the line above to cut the tree into clusters, we can examine how the clusters overlap with the actual tissues:
 
 
-```r
+~~~
 hclusters <- cutree(hc, h=120)
 table(true=tissue, cluster=hclusters)
-```
+~~~
+{: .language-r}
 
-```
-##              cluster
-## true           1  2  3  4  5  6  7  8  9 10 11 12 13 14
-##   cerebellum   0  0  0  0 31  0  0  0  2  0  0  5  0  0
-##   colon        0  0  0  0  0  0 34  0  0  0  0  0  0  0
-##   endometrium  0  0  0  0  0  0  0  0  0  0 15  0  0  0
-##   hippocampus  0  0 12 19  0  0  0  0  0  0  0  0  0  0
-##   kidney       9 18  0  0  0 10  0  0  2  0  0  0  0  0
-##   liver        0  0  0  0  0  0  0 24  0  2  0  0  0  0
-##   placenta     0  0  0  0  0  0  0  0  0  0  0  0  2  4
-```
+
+
+~~~
+             cluster
+true           1  2  3  4  5  6  7  8  9 10 11 12 13 14
+  cerebellum   0  0  0  0 31  0  0  0  2  0  0  5  0  0
+  colon        0  0  0  0  0  0 34  0  0  0  0  0  0  0
+  endometrium  0  0  0  0  0  0  0  0  0  0 15  0  0  0
+  hippocampus  0  0 12 19  0  0  0  0  0  0  0  0  0  0
+  kidney       9 18  0  0  0 10  0  0  2  0  0  0  0  0
+  liver        0  0  0  0  0  0  0 24  0  2  0  0  0  0
+  placenta     0  0  0  0  0  0  0  0  0  0  0  0  2  4
+~~~
+{: .output}
 
 We can also ask `cutree` to give us back a given number of clusters. The function then automatically finds the height that results in the requested number of clusters:
 
 
-```r
+~~~
 hclusters <- cutree(hc, k=8)
 table(true=tissue, cluster=hclusters)
-```
+~~~
+{: .language-r}
 
-```
-##              cluster
-## true           1  2  3  4  5  6  7  8
-##   cerebellum   0  0 31  0  0  2  5  0
-##   colon        0  0  0 34  0  0  0  0
-##   endometrium 15  0  0  0  0  0  0  0
-##   hippocampus  0 12 19  0  0  0  0  0
-##   kidney      37  0  0  0  0  2  0  0
-##   liver        0  0  0  0 24  2  0  0
-##   placenta     0  0  0  0  0  0  0  6
-```
+
+
+~~~
+             cluster
+true           1  2  3  4  5  6  7  8
+  cerebellum   0  0 31  0  0  2  5  0
+  colon        0  0  0 34  0  0  0  0
+  endometrium 15  0  0  0  0  0  0  0
+  hippocampus  0 12 19  0  0  0  0  0
+  kidney      37  0  0  0  0  2  0  0
+  liver        0  0  0  0 24  2  0  0
+  placenta     0  0  0  0  0  0  0  6
+~~~
+{: .output}
 
 In both cases we do see that, with some exceptions, each tissue is uniquely represented by one of the clusters. In some instances, the one tissue is spread across two tissues, which is due to selecting too many clusters. Selecting the number of clusters is generally a challenging step in practice and an active area of research.
 
@@ -139,81 +158,97 @@ In both cases we do see that, with some exceptions, each tissue is uniquely repr
 We can also cluster with the `kmeans` function to perform k-means clustering. As an example, let's run k-means on the samples in the space of the first two genes:
 
 
-```r
+~~~
 set.seed(1)
 km <- kmeans(t(e[1:2,]), centers=7)
 names(km)
-```
+~~~
+{: .language-r}
 
-```
-## [1] "cluster"      "centers"      "totss"        "withinss"     "tot.withinss"
-## [6] "betweenss"    "size"         "iter"         "ifault"
-```
 
-```r
+
+~~~
+[1] "cluster"      "centers"      "totss"        "withinss"     "tot.withinss"
+[6] "betweenss"    "size"         "iter"         "ifault"      
+~~~
+{: .output}
+
+
+
+~~~
 mypar(1,2)
 plot(e[1,], e[2,], col=as.fumeric(tissue), pch=16)
 plot(e[1,], e[2,], col=km$cluster, pch=16)
-```
+~~~
+{: .language-r}
 
-![Plot of gene expression for first two genes (order of appearance in data) with color representing tissue (left) and clusters found with kmeans (right).](fig/02-clustering-kmeans-1.png)
+<img src="../fig/rmd-02-kmeans-1.png" alt="Plot of gene expression for first two genes (order of appearance in data) with color representing tissue (left) and clusters found with kmeans (right)." width="756" style="display: block; margin: auto;" />
 
 ![Plot of gene expression for first two genes (order of appearance in data) with color representing tissue (left) and clusters found with kmeans (right).](../fig/02-clustering-kmeans-1.png)
 
 In the first plot, color represents the actual tissues, while in the second, color represents the clusters that were defined by `kmeans`. We can see from tabulating the results that this particular clustering exercise did not perform well:
 
 
-```r
+~~~
 table(true=tissue,cluster=km$cluster)
-```
+~~~
+{: .language-r}
 
-```
-##              cluster
-## true           1  2  3  4  5  6  7
-##   cerebellum   1  0  0 13  6  4 14
-##   colon        3  0 22  0  6  3  0
-##   endometrium  3  0  0  6  0  2  4
-##   hippocampus  0  0  0  0 16 15  0
-##   kidney      10  0  2  1  0  9 17
-##   liver        0 18  0  7  0  0  1
-##   placenta     4  0  0  1  0  0  1
-```
+
+
+~~~
+             cluster
+true           1  2  3  4  5  6  7
+  cerebellum   1  0  0 13  6  4 14
+  colon        3  0 22  0  6  3  0
+  endometrium  3  0  0  6  0  2  4
+  hippocampus  0  0  0  0 16 15  0
+  kidney      10  0  2  1  0  9 17
+  liver        0 18  0  7  0  0  1
+  placenta     4  0  0  1  0  0  1
+~~~
+{: .output}
 
 This is very likely due to the fact that the first two genes are not informative regarding tissue type. We can see this in the first plot above. If we instead perform k-means clustering using all of the genes, we obtain a much improved result. To visualize this, we can use an MDS plot:
 
 
 
-```r
+~~~
 km <- kmeans(t(e), centers=7)
 mds <- cmdscale(d)
 
 mypar(1,2)
 plot(mds[,1], mds[,2]) 
 plot(mds[,1], mds[,2], col=km$cluster, pch=16)
-```
+~~~
+{: .language-r}
 
-![Plot of gene expression for first two PCs with color representing tissues (left) and clusters found using all genes (right).](fig/02-clustering-kmeans_mds-1.png)
+<img src="../fig/rmd-02-kmeans_mds-1.png" alt="Plot of gene expression for first two PCs with color representing tissues (left) and clusters found using all genes (right)." width="756" style="display: block; margin: auto;" />
 
 ![Plot of gene expression for first two PCs with color representing tissues (left) and clusters found using all genes (right).](../fig/02-clustering-kmeans_mds-1.png)
 
 By tabulating the results, we see that we obtain a similar answer to that obtained with hierarchical clustering.
 
 
-```r
+~~~
 table(true=tissue,cluster=km$cluster)
-```
+~~~
+{: .language-r}
 
-```
-##              cluster
-## true           1  2  3  4  5  6  7
-##   cerebellum   0  2  0  5  0  0 31
-##   colon        0  0 34  0  0  0  0
-##   endometrium  0  0  0  0  0 15  0
-##   hippocampus  0  0  0 31  0  0  0
-##   kidney       0  2  0  0 19 18  0
-##   liver       24  2  0  0  0  0  0
-##   placenta     0  0  6  0  0  0  0
-```
+
+
+~~~
+             cluster
+true           1  2  3  4  5  6  7
+  cerebellum   0  2  0  5  0  0 31
+  colon        0  0 34  0  0  0  0
+  endometrium  0  0  0  0  0 15  0
+  hippocampus  0  0  0 31  0  0  0
+  kidney       0  2  0  0 19 18  0
+  liver       24  2  0  0  0  0  0
+  placenta     0  0  6  0  0  0  0
+~~~
+{: .output}
 
 
 <a name="heatmap"></a>
@@ -223,47 +258,56 @@ table(true=tissue,cluster=km$cluster)
 Heatmaps are ubiquitous in the genomics literature. They are very useful plots for visualizing the measurements for a subset of rows over all the samples. A *dendrogram* is added on top and on the side that is created with hierarchical clustering. We will demonstrate how to create heatmaps from within R. Let's begin by defining a color palette:
 
 
-```r
+~~~
 library(RColorBrewer) 
 hmcol <- colorRampPalette(brewer.pal(9, "GnBu"))(100)
-```
+~~~
+{: .language-r}
 
 Now, pick the genes with the top variance over all samples:
 
 
-```r
+~~~
 library(genefilter)
 rv <- rowVars(e)
 idx <- order(-rv)[1:40]
-```
+~~~
+{: .language-r}
 
 While a `heatmap` function is included in R, we recommend the `heatmap.2` function from the `gplots` package on CRAN because it is a bit more customized. For example, it stretches to fill the window. Here we add colors to indicate the tissue on the top:
 
 
-```r
+~~~
 library(gplots) ##Available from CRAN
 cols <- palette(brewer.pal(8, "Dark2"))[as.fumeric(tissue)]
 head(cbind(colnames(e),cols))
-```
+~~~
+{: .language-r}
 
-```
-##                        cols     
-## [1,] "GSM11805.CEL.gz" "#1B9E77"
-## [2,] "GSM11814.CEL.gz" "#1B9E77"
-## [3,] "GSM11823.CEL.gz" "#1B9E77"
-## [4,] "GSM11830.CEL.gz" "#1B9E77"
-## [5,] "GSM12067.CEL.gz" "#1B9E77"
-## [6,] "GSM12075.CEL.gz" "#1B9E77"
-```
 
-```r
+
+~~~
+                       cols     
+[1,] "GSM11805.CEL.gz" "#1B9E77"
+[2,] "GSM11814.CEL.gz" "#1B9E77"
+[3,] "GSM11823.CEL.gz" "#1B9E77"
+[4,] "GSM11830.CEL.gz" "#1B9E77"
+[5,] "GSM12067.CEL.gz" "#1B9E77"
+[6,] "GSM12075.CEL.gz" "#1B9E77"
+~~~
+{: .output}
+
+
+
+~~~
 heatmap.2(e[idx,], labCol=tissue,
           trace="none", 
           ColSideColors=cols, 
           col=hmcol)
-```
+~~~
+{: .language-r}
 
-![Heatmap created using the 40 most variable genes and the function heatmap.2.](fig/02-clustering-heatmap.2-1.png)
+<img src="../fig/rmd-02-heatmap.2-1.png" alt="Heatmap created using the 40 most variable genes and the function heatmap.2." width="756" style="display: block; margin: auto;" />
 
 ![Heatmap created using the 40 most variable genes and the function heatmap.2.](../fig/02-clustering-heatmap.2-1.png)
 
@@ -272,13 +316,14 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > ## Exercises
 > 1. Create a random matrix with no correlation in the following way:
 > 
-> ```r
+> ~~~
 > set.seed(1)
 > m = 10000
 > n = 24
 > x = matrix(rnorm(m * n), m, n) 
 > colnames(x) = 1:n
-> ```
+> ~~~
+> {: .language-r}
 > Run hierarchical clustering on this data with the `hclust` function with 
 > default parameters to cluster the columns. Create a dendrogram.  
 > In the dendrogram, which pairs of samples are the furthest away from each 
@@ -291,12 +336,13 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > > ## Solution
 > >
 > > 
-> > ```r
+> > ~~~
 > > d <- dist(t(x))
 > > hc <- hclust(d)
 > > mypar()
 > > plot(hc)
-> > ```
+> > ~~~
+> > {: .language-r}
 > > # 7 and 23 - 141  
 > > # 19 and 14 - 143  
 > > # 1 and 16 - 142  
@@ -309,11 +355,12 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > 2. Set the seed at 1, `set.seed(1)` and replicate the creation of this matrix
 > 100 times:
 > 
-> ```r
+> ~~~
 > m = 10000
 > n = 24
 > x = matrix(rnorm(m * n), m, n)
-> ```
+> ~~~
+> {: .language-r}
 > then perform hierarchical clustering as in the solution to exercise 1, and 
 > find the number of clusters if you use `cuttree` at height 143. This number is 
 > a random variable.
@@ -323,7 +370,7 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > > ## Solution
 > >
 > > 
-> > ```r
+> > ~~~
 > > set.seed(1)
 > > res_list <- replicate(100, {
 > >   m = 10000
@@ -336,15 +383,17 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > >   return(num_clus)
 > > })
 > > popsd(res_list)
-> > ```
+> > ~~~
+> > {: .language-r}
 > {: .solution}
 {: .challenge}
 > 3. Run `kmeans` with 4 centers for the blood RNA data:
 > 
-> ```r
+> ~~~
 > library(GSE5859Subset)
 > data(GSE5859Subset)
-> ```
+> ~~~
+> {: .language-r}
 > Set the seed to 10, `set.seed(10)` right before running kmeans with 5 centers.
 > Explore the relationship of clusters and information in `sampleInfo`. Which of 
 > the following best describes what you find?
@@ -357,29 +406,32 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > > ## Solution
 > >
 > > 
-> > ```r
+> > ~~~
 > > km <- kmeans(t(geneExpression), centers = 5)
 > > km$cluster
 > > table(true = sampleInfo$group, cluster = km$cluster)
 > > table(true = sampleInfo$date, cluster = km$cluster)
-> > ```
+> > ~~~
+> > {: .language-r}
 > > The answer is C: Date is driving the clusters.
 > {: .solution}
 {: .challenge}
 > 4. Load the data:
 > 
-> ```r
+> ~~~
 > library(GSE5859Subset)
 > data(GSE5859Subset)
-> ```
+> ~~~
+> {: .language-r}
 > Pick the 25 genes with the highest across sample variance. This function might 
 > help:
 > 
-> ```r
+> ~~~
 > install.packages("matrixStats") 
 > library(matrixStats)
 > ?rowMads ## we use mads due to a outlier sample
-> ```
+> ~~~
+> {: .language-r}
 > Use `heatmap.2` to make a heatmap showing the `sampleInfo$group` with color, 
 > the date as labels, the rows labelled with chromosome, and scaling the rows.
 > What do we learn from this heatmap?
@@ -394,7 +446,7 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > > ## Solution
 > >
 > > 
-> > ```r
+> > ~~~
 > > hmcol <- colorRampPalette(brewer.pal(9, "GnBu"))(100)
 > > month = format( sampleInfo$date, "%m")
 > > rv <- rowVars(geneExpression)
@@ -405,7 +457,8 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > >           trace = 'none', labRow = geneAnnotation[idx,]$CHR,
 > >           col = hmcol, labCol = month,
 > >           ColSideColors = cols)
-> > ```
+> > ~~~
+> > {: .language-r}
 > > The correct answer is C: A group of chrY genes are higher in group 0 and 
 > > appear to drive the clustering. Within those clusters there appears to be 
 > > clustering by month.
@@ -419,13 +472,14 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > 5. Create a large dataset of random data that is completely independent of
 > `sampleInfo$group` like this:
 > 
-> ```r
+> ~~~
 > set.seed(17)
 > m = nrow(geneExpression) 
 > n = ncol(geneExpression) 
 > x = matrix(rnorm(m * n), m, n) 
 > g = factor(sampleInfo$g)
-> ```
+> ~~~
+> {: .language-r}
 > Create two heatmaps with these data. Show the group `g` either with labels or 
 > colors. First, take the 50 genes with smallest p-values obtained with 
 > `rowttests`. Then, take the 50 genes with largest standard deviations.
@@ -442,7 +496,7 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > > ## Solution
 > >
 > > 
-> > ```r
+> > ~~~
 > > # p-value
 > > pvals <- rowttests(x, g)$p.value
 > > idx <- order(pvals)[1:50]
@@ -459,7 +513,8 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > >           trace = 'none', labRow = geneAnnotation[idx,]$CHR,
 > >           col = hmcol, labCol = month,
 > >           ColSideColors = cols)
-> > ```
+> > ~~~
+> > {: .language-r}
 > > The answer is A: There is no relationship between g and x, but with 8,793 
 > > tests some will appear significant by chance. Selecting genes with the 
 > > t-test gives us a deceiving result.
