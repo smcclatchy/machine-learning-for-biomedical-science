@@ -205,6 +205,8 @@ X = X[,-out]
 > > library(caret)
 > > set.seed(1)
 > > idx <- createFolds(y, k = 10)
+> > # Select the set of indices corresponding to the third fold
+> > # using idx[[3]], then print the second index of that fold
 > > idx[[3]][2]
 > > ```
 > {: .solution}
@@ -221,13 +223,27 @@ X = X[,-out]
 > 
 > > ## Solution
 > >
-> > ```{r, eval=FALSE} 
+> > ```{r, eval=FALSE}
+> > library(genefilter)
 > > m <- 8 # number of genes
+> > 
+> > # `rowttests` performs a t-test on the expression of each gene
 > > pvals <- rowttests(t(X[-idx[[2]],]),y[-idx[[2]]])$p.value
+> > 
+> > # We use the p-value to identify the genes that present a
+> > # significant effect (i.e. the effect is statistically
+> > # different from 0). That is achieved by ordering `pvals`
+> > # in increasing order, and taking the `m` smaller p.values
 > > ind <- order(pvals)[1:m]
+> > 
+> > # Then the k-nearest-neighbor algorithm is executed only
+> > # considering these `m` most significant genes.
 > > pred <- knn(train = X[-idx[[2]],ind],
 > >             test = X[idx[[2]],ind],
 > >             cl = y[-idx[[2]]], k = 5)
+> > 
+> > # This command computes the total number of examples that
+> > # were miss-classified by the knn algorithm.
 > > sum(pred != y[idx[[2]]])
 > > ```
 > {: .solution}
@@ -238,17 +254,24 @@ X = X[,-out]
 > > ## Solution
 > >
 > > ```{r, eval=FALSE} 
+> > # Now run the previous piece of code for each fold
 > > n_fold <- length(idx)
 > > res <- vector('double', n_fold)
 > > m <- 8
 > > for (i in seq(n_fold)) {
+> >   # To be fair and only use the information we have at the moment
+> >   # of training, we perform the t-tests only on the training set.
 > >   pvals <- rowttests(t(X[-idx[[i]],]),y[-idx[[i]]])$p.value
 > >   ind <- order(pvals)[1:m]
+> >   # We will use again the top m=8 genes that showed the most
+> >   # significant effect according to the previous t-tests.
 > >   pred <- knn(train = X[-idx[[i]],ind],
 > >               test = X[idx[[i]],ind],
 > >               cl = y[-idx[[i]]], k = 5)
 > >   res[[i]] <- sum(pred != y[idx[[i]]])
 > > }
+> > # Compute the average performance of the knn algorithm achieved on
+> > # the ten folds.
 > > sum(res)/length(y)
 > > ```
 > {: .solution}
@@ -260,7 +283,9 @@ X = X[,-out]
 > ```{r, eval = FALSE}
 > ms = 2^c(1:11)
 > ks = seq(1,9,2)
-> params = expand.grid(k=ks,m=ms)
+> # Compute all possible pairs of configurations of number of most
+> # significant genes and number of neighbors for the knn algorithm.
+> params = expand.grid(k=ks, m=ms)
 > ```
 > 
 > Now use apply or a for-loop to obtain error rates for each of these pairs of 
@@ -268,23 +293,41 @@ X = X[,-out]
 > > ## Solution
 > >
 > > ```{r, eval=FALSE} 
-> > ms = 2^c(1:11)
-> > ks = seq(1,9,2)
-> > params = expand.grid(k=ks, m=ms)
 > > n_fold <- length(idx)
+> > # Store the mean performance on the ten folds of the knn algorithm
+> > # using each pair of parameters.
 > > error_rate_avg = vector('double',nrow(params))
+> > # Iterate over each pair of parameters:
+> > # (number of neighbors, number of genes)
 > > for (j in seq(nrow(params))) {
-> >   for (i in seq(n_fold)) {
-> >     pvals <- rowttests(t(X[-idx[[i]],]),y[-idx[[i]]])$p.value
-> >     ind <- order(pvals)[1:params[j,][[2]]]
-> >     pred <- knn(train = X[-idx[[i]],ind],
-> >                 test = X[idx[[i]],ind],
-> >                 cl = y[-idx[[i]]], k = params[j,][[1]])
-> >     res[[i]] <- sum(pred != y[idx[[i]]])
-> >   }
-> >   error_rate_avg[[j]] <- sum(res)/length(y)
+> >     # Iterate over each fold
+> >     for (i in seq(n_fold)) {
+> >         # Again perform the t-tests only on the training set
+> >         pvals <- rowttests(t(X[-idx[[i]],]),y[-idx[[i]]])$p.value
+> >         # This time we take the top number of genes given by
+> >         # the current pair of parameters `param[j,][[2]]`
+> >         ind <- order(pvals)[1:params[j,][[2]]]
+> > 
+> >         # Train the knn algorithm using the train set, and
+> >         # evaluating on the test set of the current fold `idx[[i]]`.
+> >         # The knn is trained using the number of neighbors given
+> >         # by the current pair of parameters `param[j,][[1]]`
+> >         pred <- knn(train = X[-idx[[i]],ind],
+> >                     test = X[idx[[i]],ind],
+> >                     cl = y[-idx[[i]]],
+> >                     k = params[j,][[1]])
+> >         res[[i]] <- sum(pred != y[idx[[i]]])
+> >     }
+> >     # Approximate how our knn algorithm would perform with unseen data
+> >     # by computing the mean error achieved on all the folds.
+> >     error_rate_avg[[j]] <- sum(res)/length(y)
 > > }
+> > # Find the pair of parameters (number of neighbors, number of genes)
+> > # that achieves the lowest expected error.
 > > ind <- which(error_rate_avg == min(error_rate_avg))
+> > 
+> > # Print that pair of parameters and the corresponding error rate
+> > # achieved
 > > params[ind,] # answer
 > > min(error_rate_avg) # minimum error rate
 > > ```
@@ -297,22 +340,28 @@ X = X[,-out]
 > > ## Solution
 > >
 > > ```{r, eval=FALSE} 
+> > # We perform the same experiment with the exception that
+> > # this time we perform the t-tests on all the dataset to
+> > # choose the top number of genes with most significant
+> > # effect.
 > > ms = 2^c(1:11)
 > > ks = seq(1,9,2)
 > > params = expand.grid(k=ks, m=ms)
 > > n_fold <- length(idx)
 > > error_rate_avg = vector('double',nrow(params))
 > > for (j in seq(nrow(params))) {
-> >   for (i in seq(n_fold)) {
-> >     pvals <- rowttests(t(X),y)$p.value
-> >     ind <- order(pvals)[1:params[j,][[2]]]
-> >     pred <- knn(train = X[-idx[[i]],ind],
-> >                 test = X[idx[[i]],ind],
-> >                 cl = y[-idx[[i]]], k = params[j,][[1]])
-> >     res[[i]] <- sum(pred != y[idx[[i]]])
+> >     for (i in seq(n_fold)) {
+> >         # Here we use the complete dataset to select the genes,
+> >         # rather than only the examples corresponding to this fold.
+> >         pvals <- rowttests(t(X),y)$p.value
+> >         ind <- order(pvals)[1:params[j,][[2]]]
+> >         pred <- knn(train = X[-idx[[i]],ind],
+> >                     test = X[idx[[i]],ind],
+> >                     cl = y[-idx[[i]]], k = params[j,][[1]])
+> >         res[[i]] <- sum(pred != y[idx[[i]]])
+> >       }
+> >     error_rate_avg[[j]] <- sum(res)/length(y)
 > >   }
-> >   error_rate_avg[[j]] <- sum(res)/length(y)
-> > }
 > > min(error_rate_avg) # minimum error rate
 > > mean(error_rate_avg) # mean error rate
 > > ```
@@ -335,22 +384,26 @@ X = X[,-out]
 > > ## Solution
 > >
 > > ```{r, eval=FALSE} 
+> > # We use 'y' as the date the sample was taken as class as an example.
+> > # However, notice that this is introducing a `batch effect`.
+> > y = factor(as.numeric(format( sampleInfo$date, "%m")=="06"))
+> > 
 > > ms = 2^c(1:11)
 > > ks = seq(1,9,2)
 > > params = expand.grid(k=ks, m=ms)
 > > n_fold <- length(idx)
 > > error_rate_avg = vector('double',nrow(params))
 > > for (j in seq(nrow(params))) {
-> >   for (i in seq(n_fold)) {
-> >     pvals <- rowttests(t(X[-idx[[i]],]),y[-idx[[i]]])$p.value
-> >     ind <- order(pvals)[1:params[j,][[2]]]
-> >     pred <- knn(train = X[-idx[[i]],ind],
-> >                 test = X[idx[[i]],ind],
-> >                 cl = y[-idx[[i]]], k = params[j,][[1]])
-> >     res[[i]] <- sum(pred != y[idx[[i]]])
+> >     for (i in seq(n_fold)) {
+> >         pvals <- rowttests(t(X[-idx[[i]],]),y[-idx[[i]]])$p.value
+> >         ind <- order(pvals)[1:params[j,][[2]]]
+> >         pred <- knn(train = X[-idx[[i]],ind],
+> >                     test = X[idx[[i]],ind],
+> >                     cl = y[-idx[[i]]], k = params[j,][[1]])
+> >         res[[i]] <- sum(pred != y[idx[[i]]])
+> >       }
+> >     error_rate_avg[[j]] <- sum(res)/length(y)
 > >   }
-> >   error_rate_avg[[j]] <- sum(res)/length(y)
-> > }
 > > min(error_rate_avg) # minimum error rate
 > > mean(error_rate_avg) # mean error rate
 > > ```
