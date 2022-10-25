@@ -6,7 +6,7 @@ title: "Clustering"
 teaching: 30
 exercises: 30
 questions:
-- "How clusters whithin high dimensional data can be discovered?"
+- "How clusters within high dimensional data can be discovered?"
 objectives:
 - "Perform clustering analysis."
 - "Interpret a heatmap."
