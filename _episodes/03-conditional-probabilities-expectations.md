@@ -6,11 +6,12 @@ title: "Conditional Probabilities and Expectations"
 teaching: 30
 exercises: 30
 questions:
-- "?"
+- "How to get statstical information from specific subsets in our data?"
 objectives:
-- "."
+- "Calculate statistics from subsets of a dataset that satisfies especific conditions"
+- "Predict the expected outcome of an experiment given certain conditions on a dataset"
 keypoints:
-- "."
+- "For categorical/discrete variables we have used estrict conditions (i.e. X=x); however, conditioning can be applied to continuous vriables by using ranges instead (e.g. X>=x, X<=x, or a<X<b)"
 math: yes
 ---
 
@@ -130,8 +131,11 @@ In this particular case, the regression line provides an optimal prediction func
 > ~~~
 > n = 10000
 > set.seed(1)
+> # Generate a sample of heights for a mixed population of men and women
 > men = rnorm(n, 176, 7) # height in centimeters 
-> women = rnorm(n, 162, 7) # height in centimeters y = c(rep(0, n), rep(1, n))
+> women = rnorm(n, 162, 7) # height in centimeters
+> # Assign a class label to each height generated above (0: men, 1:women)
+> y = c(rep(0, n), rep(1, n))
 > x = round(c(men, women))
 > ## mix it up
 > ind = sample(seq(along=y))
@@ -145,6 +149,9 @@ In this particular case, the regression line provides an optimal prediction func
 > >
 > > 
 > > ~~~
+> > # Take all labels `y` that correspond to individuals whose height is 176 cm.
+> > # Then compute the mean value as an insight about an individual with
+> > # that height could be a woman or a man.
 > > mean(y[x==176])
 > > ~~~
 > > {: .language-r}
@@ -162,14 +169,21 @@ In this particular case, the regression line provides an optimal prediction func
 > > ~~~
 > > mypar()
 > > plot(x,y)
+> > # This time we test a single height at a time from a set of heights,
+> > # between 160 cm and 178 cm.
 > > x_list <- seq(160,178)
 > > res <- vector('double', length(x_list))
 > > for (i in seq_along(x_list)) {
-> >   res[[i]] <- mean(y[x==x_list[[i]]])
+> >   # Compute the expected label (woman or man) of an individual whose height
+> >   # is the same as x_list[i]
+> >   res[i] <- mean(y[x==x_list[i]])
 > > }
-> > ind <- max(which(res > 0.5))
-> > x_list[ind] # answer
-> > mean(y[x==168])
+> > # Verify that the probability to identify an individual as a woman given their
+> > # height is higher than 50 %
+> > mean(y[x==x_list[ind]])
+> > 
+> > # And if we move one centimeter higher, our probability falls under 50 %
+> > mean(y[x==x_list[ind + 1]])
 > > ~~~
 > > {: .language-r}
 > {: .solution}

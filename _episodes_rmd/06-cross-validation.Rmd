@@ -4,11 +4,12 @@ title: "Cross-validation"
 teaching: 30
 exercises: 30
 questions:
-- "?"
+- "How can the best configuration of parameters be selected for a machine learning model using only the data available?"
 objectives:
-- "."
+- "Create a set of fold indices for cross-validation"
+- "Select the best configuration for a machine learning model using cross-validation"
 keypoints:
-- "."
+- "The mean validation error obtained from cross-validation is a better approximation of the test error (real world data) than the training error iteself"
 math: yes
 ---
 
@@ -233,7 +234,7 @@ X = X[,-out]
 > > # We use the p-value to identify the genes that present a
 > > # significant effect (i.e. the effect is statistically
 > > # different from 0). That is achieved by ordering `pvals`
-> > # in increasing order, and taking the `m` smaller p.values
+> > # in increasing order, and taking the `m` smallest p-values
 > > ind <- order(pvals)[1:m]
 > > 
 > > # Then the k-nearest-neighbor algorithm is executed only
@@ -359,9 +360,9 @@ X = X[,-out]
 > >                     test = X[idx[[i]],ind],
 > >                     cl = y[-idx[[i]]], k = params[j,][[1]])
 > >         res[[i]] <- sum(pred != y[idx[[i]]])
-> >       }
+> >     }
 > >     error_rate_avg[[j]] <- sum(res)/length(y)
-> >   }
+> > }
 > > min(error_rate_avg) # minimum error rate
 > > mean(error_rate_avg) # mean error rate
 > > ```
@@ -384,7 +385,7 @@ X = X[,-out]
 > > ## Solution
 > >
 > > ```{r, eval=FALSE} 
-> > # We use 'y' as the date the sample was taken as class as an example.
+> > # We use 'y' as the date the sample was taken as class.
 > > # However, notice that this is introducing a `batch effect`.
 > > y = factor(as.numeric(format( sampleInfo$date, "%m")=="06"))
 > > 
@@ -401,9 +402,9 @@ X = X[,-out]
 > >                     test = X[idx[[i]],ind],
 > >                     cl = y[-idx[[i]]], k = params[j,][[1]])
 > >         res[[i]] <- sum(pred != y[idx[[i]]])
-> >       }
+> >     }
 > >     error_rate_avg[[j]] <- sum(res)/length(y)
-> >   }
+> > }
 > > min(error_rate_avg) # minimum error rate
 > > mean(error_rate_avg) # mean error rate
 > > ```

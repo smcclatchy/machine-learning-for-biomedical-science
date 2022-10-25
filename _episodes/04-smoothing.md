@@ -6,11 +6,12 @@ title: "Smoothing"
 teaching: 30
 exercises: 30
 questions:
-- "?"
+- "Can a model be fitted to a dataset which shape is unknown but smooth?"
 objectives:
-- "."
+- "Fit a smooth regression model to data which behavior depends conditionally on a set of predictors"
+- "Predict the expected value of a smooth model given the value of the predictors"
 keypoints:
-- "."
+- "The smoothing methods work well when used inside the range of predictor values seen in the training set, however them are not suitable for extrapolation the prediction outside those ranges."
 math: yes
 ---
 
@@ -139,8 +140,10 @@ There are three other important differences between `loess` and the typical bin 
 > ~~~
 > n = 10000
 > set.seed(1)
+> # Generate a sample of heights for a mixed population of men and women
 > men = rnorm(n,176,7) #height in centimeters
 > women = rnorm(n,162,7) #height in centimeters
+> # Assign a class label to each height generated above (0: men, 1:women)
 > y = c(rep(0,n),rep(1,n))
 > x = round(c(men,women))
 > ## mix it up
@@ -153,9 +156,13 @@ There are three other important differences between `loess` and the typical bin 
 > 
 > ~~~
 > set.seed(5)
-> N = 250    
+> N = 250
+> # Take a sample of size N=250 individuals from our mixed population
 > ind = sample(length(y), N)
+> # Remember that `Y` contains the labels that identify if the individual is a
+> # man or a woman.
 > Y = y[ind]
+> # And `X` contains the heights if those individuals.
 > X = x[ind]
 > ~~~
 > {: .language-r}
@@ -166,13 +173,22 @@ There are three other important differences between `loess` and the typical bin 
 > >
 > > 
 > > ~~~
+> > # Fit a LOESS model to predict if an individual is a man or a woman using
+> > # its height as predictor.
 > > fit <- loess(Y~X)
+> > # Generate a grid on the height axis to plot the model fitted above
 > > newx <- seq(min(X),max(X),len=45)
+> > # Predict if the individual is a man or a woman according to the heights on
+> > # our `newx` grid
 > > hat <- predict(fit, newdata=data.frame(X=newx))
 > > mypar()
 > > plot(X,Y)
 > > names(hat) <- round(newx,1)
 > > lines(newx,hat)
+> > # Lets check what is the predicted label for an individual whos height is
+> > # 168 cm. A label closer to 0 (< 0.5) would be an insight that the
+> > # individual is a man, whereas a label closer to 1 (> 0.5) would indicate
+> > # that the individual is a woman.
 > > hat['168']
 > > ~~~
 > > {: .language-r}
@@ -197,12 +213,18 @@ There are three other important differences between `loess` and the typical bin 
 > >   ind = sample(length(y),N)
 > >   Y = y[ind]
 > >   X = x[ind]
+> >   # The model fitted by LOESS will be different according to the data used
+> >   # to fit it, so we need to fit it again to each new random sample.
 > >   fit <- loess(Y~X)
 > >   hat <- predict(fit, newdata=data.frame(X=newx))
 > >   names(hat) <- round(newx,1)
+> >   # Because the model is different, the predicted label for a specific
+> >   # height will be different too. We are focused to know how much that
+> >   # prediction will vary.
 > >   return(hat['168'])
 > > })
 > > names(res) <- NULL
+> > # Compute the Standard Error (SE) of the label estimation
 > > popsd(res)
 > > ~~~
 > > {: .language-r}

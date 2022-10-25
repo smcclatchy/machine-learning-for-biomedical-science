@@ -6,12 +6,12 @@ title: "Clustering"
 teaching: 30
 exercises: 30
 questions:
-- "?"
+- "How clusters whithin high dimensional data can be discovered?"
 objectives:
 - "Perform clustering analysis."
 - "Interpret a heatmap."
 keypoints:
-- "."
+- "We have used the euclidean distance to define the disimilarity between samples; however, we can use other metrics according to the prior knowledge we have from our data."
 math: yes
 ---
 
@@ -279,6 +279,19 @@ While a `heatmap` function is included in R, we recommend the `heatmap.2` functi
 
 ~~~
 library(gplots) ##Available from CRAN
+~~~
+{: .language-r}
+
+
+
+~~~
+Warning: package 'gplots' was built under R version 4.2.1
+~~~
+{: .warning}
+
+
+
+~~~
 cols <- palette(brewer.pal(8, "Dark2"))[as.fumeric(tissue)]
 head(cbind(colnames(e),cols))
 ~~~
@@ -341,6 +354,11 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > > hc <- hclust(d)
 > > mypar()
 > > plot(hc)
+> > # A hint to determine the disimilarity between two samples is to look at
+> > # how hight would be the dendogram be cut in order to have these two
+> > # samples in the same group. The higher the cut, the disimilar those samples are.
+> > # In this case the cut that would join sample 19 and 14 is higher than any
+> > # of the other pairs.
 > > ~~~
 > > {: .language-r}
 > > # 7 and 23 - 141  
@@ -375,13 +393,18 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > > res_list <- replicate(100, {
 > >   m = 10000
 > >   n = 24
+> >   # Generate a new matrix every repetition.
 > >   x = matrix(rnorm(m * n), m, n)
 > >   d <- dist(t(x))
+> >   # Run the hierarchical clustering on the new matrix.
 > >   hc <- hclust(d)
+> >   # Compute how many clusters form if we cut the dendogram at a height of 143.
 > >   hclusters <- cutree(hc, h=143)
 > >   num_clus <- length(unique(hclusters))
 > >   return(num_clus)
 > > })
+> > # Compute the Standard Error of the number of clusters created by cutting
+> > # the dendograms at a height of 143 on each repetition.
 > > popsd(res_list)
 > > ~~~
 > > {: .language-r}
@@ -409,7 +432,11 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > > ~~~
 > > km <- kmeans(t(geneExpression), centers = 5)
 > > km$cluster
+> > # Use the group as the true clusters of our data, and compare it agains the
+> > # clusters found by k-means.
 > > table(true = sampleInfo$group, cluster = km$cluster)
+> > # Now use the date of acquisition of the samples as the true clusters and
+> > # compare it against the same clusters found by k-means.
 > > table(true = sampleInfo$date, cluster = km$cluster)
 > > ~~~
 > > {: .language-r}
@@ -452,7 +479,9 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > > rv <- rowVars(geneExpression)
 > > idx <- order(-rv)[1:25]
 > > cols <- palette(brewer.pal(8, "Dark2"))[as.fumeric(as.character(sampleInfo$group))]
-> > 
+> > # Compute the heatmap using the intensity of the gene expressions to color
+> > # the graph. We are using the months of acquisition of the samples as the
+> > # columns in our plot, so we can see how the samples arrange according to the date.
 > > heatmap.2(geneExpression[idx,], 
 > >           trace = 'none', labRow = geneAnnotation[idx,]$CHR,
 > >           col = hmcol, labCol = month,
@@ -497,8 +526,13 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > >
 > > 
 > > ~~~
+> > library(genefilter)
 > > # p-value
+> > # Perform a t-test on the expression of each gene to determine if they have
+> > # an effect different from 0.
 > > pvals <- rowttests(x, g)$p.value
+> > # Select the top 50 genes that show the most statistical significance of their
+> > # expression, obtained by the t-tests.
 > > idx <- order(pvals)[1:50]
 > > cols <- palette(brewer.pal(8, "Dark2"))[as.fumeric(as.character(sampleInfo$g))]
 > > heatmap.2(x[idx,], 
@@ -506,7 +540,10 @@ We did not use tissue information to create this heatmap, and we can quickly see
 > >           col = hmcol, labCol = month,
 > >           ColSideColors = cols)
 > > # std dev
-> > sds <- genefilter::rowSds(x,g)
+> > # Compute the standard deviation of the expression of each gene.
+> > sds <- rowSds(x,g)
+> > # Select the top 50 genes that show a higher variance of their expression
+> > # acoss all the samples.
 > > idx <- order(-sds)[1:50]
 > > cols <- palette(brewer.pal(8, "Dark2"))[as.fumeric(as.character(sampleInfo$g))]
 > > heatmap.2(x[idx,], 
