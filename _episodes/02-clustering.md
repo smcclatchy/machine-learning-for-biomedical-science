@@ -279,19 +279,6 @@ While a `heatmap` function is included in R, we recommend the `heatmap.2` functi
 
 ~~~
 library(gplots) ##Available from CRAN
-~~~
-{: .language-r}
-
-
-
-~~~
-Warning: package 'gplots' was built under R version 4.2.1
-~~~
-{: .warning}
-
-
-
-~~~
 cols <- palette(brewer.pal(8, "Dark2"))[as.fumeric(tissue)]
 head(cbind(colnames(e),cols))
 ~~~

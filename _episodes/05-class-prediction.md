@@ -67,19 +67,6 @@ s2=0.15
 
 ## pick means to create a non linear conditional expectation
 library(MASS)
-~~~
-{: .language-r}
-
-
-
-~~~
-Warning: package 'MASS' was built under R version 4.2.1
-~~~
-{: .warning}
-
-
-
-~~~
 M0 <- mvrnorm(10, c(1,0), s2*diag(2)) ## generate 10 means
 M1 <- rbind(mvrnorm(3, c(1,1), s2*diag(2)),
             mvrnorm(3, c(0,1), s2*diag(2)),
